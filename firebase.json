@@ -1,0 +1,22 @@
+{
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      ".firebase/**",
+      ".firebaserc",
+      "firebase.json",
+      "**/node_modules/**",
+      "**/public/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "function": "nextServer"
+      }
+    ]
+  },
+  "functions": {
+    "source": ".",
+    "runtime": "nodejs10"
+  }
+}
