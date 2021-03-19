@@ -10,7 +10,7 @@ const AnyReactComponent = ({text}:any) => <div>{text}</div>
 const MapContainer = (props) => {
     return(
         <div style={{height:"40vh",width:"100%"}} >
-            <GoogleMapReact key={process.env.NEXT_PUBLIC_GOOGLE_API_KEY} bootstrapURLKeys={{key:NEXT_PUBLIC_GOOGLE_API_KEY}}
+            <GoogleMapReact key={process.env.NEXT_PUBLIC_GOOGLE_API_KEY} bootstrapURLKeys={{key:process.env.NEXT_PUBLIC_GOOGLE_API_KEY}}
                 defaultCenter={{
                     lat:59.95,
                     lng:30.33
