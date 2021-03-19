@@ -5,14 +5,14 @@ import { FaFacebookF, FaTwitter, FaLinkedinIn } from "react-icons/fa"
 const Footer = () => {
 
     return (
-        <div className="text-white py-5 px-3 flex justify-center" style={{background:"#151C4D"}}>
+        <div className="text-white py-5 px-3 flex justify-center bg-gradient-to-br from-red-400 via-pink-500 to-red-500">
             <div className="my-5 mx-3 flex flex-col max-w-7xl justify-between md:flex-row border-t-2 border-white">
                 <div className="m-2 max-w-md">
                     <div className="flex flex-col md:flex-row items-center">
                         <img className="w-10 h-10 object-cover m-2" src="/quoteImage.jpg" />
                         <p className="my-2 text-center md:text-left">
-                            But I must explain to you how all this mistaken idea of denouncing
-                            pleasure and praising pain was born and I will give you a complete account of the.
+                            It is a long established fact that a reader will be distracted by the readable content
+                            of a page when looking at its layout. The point of using Lorem Ipsum is that it.
                         </p>
                     </div>
                     <p className="my-2 text-center md:text-left">

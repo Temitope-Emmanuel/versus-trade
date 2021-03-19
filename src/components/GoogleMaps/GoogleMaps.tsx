@@ -4,14 +4,13 @@ import GoogleMapReact,{} from "google-map-react"
 
 
 
-const apiKey = "AIzaSyDzNmeAu-CLWrpHZ5Gm4Y7mJPDBY4ojEwg"
 
 const AnyReactComponent = ({text}:any) => <div>{text}</div>
 
 const MapContainer = (props) => {
     return(
         <div style={{height:"40vh",width:"100%"}} >
-            <GoogleMapReact key={apiKey} bootstrapURLKeys={{key:apiKey,}}
+            <GoogleMapReact key={process.env.NEXT_PUBLIC_GOOGLE_API_KEY} bootstrapURLKeys={{key:NEXT_PUBLIC_GOOGLE_API_KEY}}
                 defaultCenter={{
                     lat:59.95,
                     lng:30.33

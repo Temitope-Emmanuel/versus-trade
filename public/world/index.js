@@ -1,0 +1,6 @@
+export {default as AtlasBg} from "./Image14.png"
+export {default as Person1} from "./Image15.png"
+export {default as Person2} from "./Image16.png"
+export {default as Person3} from "./Image17.png"
+export {default as Person4} from "./Image18.png"
+export {default as Person5} from "./Image19.png"

@@ -24,6 +24,12 @@ a {
 @tailwind utilities;
 
 @layer utilities { 
+  body * {
+    font-family:Raleway
+  }
+  section{
+    margin:5rem auto;
+  }
   .absolute-center {
     position:absolute;
     top:50%;
