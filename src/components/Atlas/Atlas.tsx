@@ -1,6 +1,8 @@
 import React from "react"
 import {Box} from "@material-ui/core"
 import {makeStyles,createStyles,Theme} from "@material-ui/core/styles"
+import Image from "next/image"
+
 
 const useStyles = makeStyles((theme:Theme) =>
     createStyles({
@@ -23,31 +25,31 @@ const useStyles = makeStyles((theme:Theme) =>
                 transform:"scale(1.1) !important"
               }
             },
-            "& img:first-child":{
+            "& div:first-child":{
               left:"30%",
               top:"15%",
               height:"5em",
               width:"5em", 
              },
-             "& img:nth-child(2)":{
+             "& div:nth-child(2)":{
                left:"43%",
                top:"45%",
                height:"7em",
                 width:"7em"
              },
-             "& img:nth-child(3)":{
+             "& div:nth-child(3)":{
                left:"60%",
                top:"65%",
                height:"6.5em",
                 width:"6.5em"
              },
-             "& img:nth-child(4)":{
-               right:"30%",
+             "& div:nth-child(4)":{
+               left:"30%",
                top:"20%",
                height:"3em",
                 width:"3em",
              },
-             "& img:nth-child(5)":{
+             "& div:nth-child(5)":{
                left:"45%",
                top:"10%",
                 height:"7em",
@@ -65,15 +67,15 @@ const Atlas = () => {
 
     return(
         <Box className={classes.root}>
-             <img 
+             <Image width="50" height="50" layout="intrinsic" data-aos="fade" data-aos-delay={700}
                  src={`/world/${personImageArr[0]}`}/>
-            <img   
+            <Image width="50" height="50" layout="intrinsic"  data-aos="fade" data-aos-delay={700} 
                src={`/world/${personImageArr[1]}`}/>
-            <img  
+            <Image width="50" height="50" layout="intrinsic"  data-aos="fade" data-aos-delay={900}
                 src={`/world/${personImageArr[2]}`}/>
-            <img  
+            <Image width="100" height="100" layout="intrinsic"  data-aos="fade" data-aos-delay={1000} 
                src={`/world/${personImageArr[3]}`}/>
-            <img   
+            <Image width="50" height="50" layout="intrinsic"  data-aos="fade" data-aos-delay={1100} 
                src={`/world/${personImageArr[4]}`}/>
         </Box>
     )

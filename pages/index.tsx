@@ -1,6 +1,7 @@
 import React from "react"
 import { Transition } from "@headlessui/react"
 import { DetailCard, DisplayCard, QuoteCard } from "components/Cards"
+import Image from "next/image"
 import { GoogleMaps } from "components/GoogleMaps"
 import {Button} from "components/Button"
 import { Footer } from "components/Footer"
@@ -69,14 +70,14 @@ export default function Home() {
             </svg>
 
             <div className="relative pt-6 px-4 sm:px-6 lg:px-8">
-              <nav className="relative flex items-center justify-between sm:h-10 lg:justify-start" aria-label="Global">
+              <nav data-aos="fade-down" className="relative flex items-center justify-between sm:h-10 lg:justify-start" aria-label="Global">
                 <div className="flex items-center flex-grow flex-shrink-0 lg:flex-grow-0">
-                  <div className="flex items-center justify-between w-full md:w-auto">
+                  <div data-aos="fade-right" data-aos-delay="1000" className="flex items-center justify-between w-full md:w-auto">
                     <a href="#">
                       <span className="sr-only">Workflow</span>
                       {/* <img className="h-8 w-auto sm:h-10" src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"/> */}
                       <div className="flex items-center">
-                        <img className="h-8 w-auto sm:h-10" src="logo.png" />
+                        <Image width="30" height="30" layout="intrinsic" priority={true} className="h-8 w-auto sm:h-10" src="/logo.png" />
                         <p className="font-black text-lg">ersus</p>
                       </div>
                     </a>
@@ -92,13 +93,13 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="hidden md:block md:ml-10 md:pr-4 md:space-x-8">
-                  <a href="#" className="font-medium text-gray-900 text-lg hover:text-red-500">Home</a>
+                  <a data-aos="fade-up-left" data-aos-delay="1300" href="#" className="font-medium text-gray-900 text-lg hover:text-red-500">Home</a>
 
-                  <a href="#" className="font-medium text-gray-900 text-lg hover:text-red-500">Service</a>
+                  <a data-aos="fade-up-left" data-aos-delay="1500" href="#" className="font-medium text-gray-900 text-lg hover:text-red-500">Service</a>
 
-                  <a href="#" className="font-medium text-gray-900 text-lg hover:text-red-500">Who we are</a>
+                  <a data-aos="fade-up-left" data-aos-delay="1700" href="#" className="font-medium text-gray-900 text-lg hover:text-red-500">Who we are</a>
 
-                  <a href="#" className="font-medium text-gray-900 text-lg hover:text-red-500">Contact</a>
+                  <a data-aos="fade-up-left" data-aos-delay="2000" href="#" className="font-medium text-gray-900 text-lg hover:text-red-500">Contact</a>
                 </div>
               </nav>
             </div>
@@ -112,7 +113,7 @@ export default function Home() {
                   <div className="rounded-lg shadow-md bg-white ring-1 ring-black ring-opacity-5 overflow-hidden">
                     <div className="px-5 pt-4 flex items-center justify-between">
                       <div>
-                        <img className="h-8 w-auto" src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg" alt="" />
+                        <Image width="0" height="0" layout="intrinsic" className="h-8 w-auto" src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg" alt="" />
                       </div>
                       <div className="-mr-2">
                         <button type="button" onClick={handleToggle} className="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
@@ -142,26 +143,26 @@ export default function Home() {
               )}
             </Transition>
 
-            <main className="mt-28 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
+            <main data-aos="flip-up" data-aos-delay="1300" className="mt-28 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
               <div className="sm:text-center lg:text-left">
                 <h1 className="text-2xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
                   <span className="block xl:inline">Versus Trade, Hub Of</span>
                   <span className="block text-red-600 whitespace-nowrap">Crypto and Giftcards</span>
                 </h1>
-                <p className="mt-3 text-base text-red-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
+                <p data-aos="zoom-out-down" data-aos-delay="2000" className="mt-3 text-base text-red-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
                   Where better transactions are done
                 </p>
                 <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
-                  <div className="rounded-md shadow">
+                  <div data-aos="zoom-in-right" data-aos-delay="1500" className="rounded-md shadow">
                     <a href="#" className={`
-                w-full flex items-center justify-center px-8 py-3 border 
-                border-transparent text-base font-medium rounded-md 
-                text-white bg-red-600 hover:bg-red-700 md:py-4 
-                md:text-lg md:px-10`}>
+                      w-full flex items-center justify-center px-8 py-3 border 
+                      border-transparent text-base font-medium rounded-md 
+                      text-white bg-red-600 hover:bg-red-700 md:py-4 
+                      md:text-lg md:px-10`}>
                       Get started
                   </a>
                   </div>
-                  <div className="mt-3 sm:mt-0 sm:ml-3">
+                  <div data-aos="zoom-in-left" data-aos-delay="1500" className="mt-3 sm:mt-0 sm:ml-3">
                     <a href="#" className={`
                       w-full flex items-center justify-center px-8 py-3 border 
                       border-transparent text-base font-medium rounded-md 
@@ -175,28 +176,30 @@ export default function Home() {
             </main>
           </div>
         </div>
-        <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
-          <img className="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full" src="versustrade.png" alt="" />
+        <div className=" w-100 lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
+          <img data-aos="fade"
+           data-aos-delay="2500" className="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full" src="/versustrade.png" alt="" />
         </div>
       </div>
-      <section >
+      <section data-aos="fade-up" data-aos-delay="1100">
         <h2 className="text-4xl text-center my-6 font-medium text-red-600">What Ever You Need we Have</h2>
         <div className="flex flex-col justify-around max-w-6xl mx-auto my-4 flex-wrap items-center md:flex-row">
           {detailArray.map((item, idx) => (
             <DetailCard key={idx} imageSrc={item.icon}
+              data-aos="flip-right" data-aos-delay={(idx+1) * 300}
               subtitle={item.subtitle} title={item.title} />
           ))}
         </div>
       </section>
-      <section className="flex flex-col-reverse justify-center md:flex-row md:px-5">
+      <section data-aos="fade-up" data-aos-delay="1100" className="flex flex-col-reverse justify-center md:flex-row md:px-5">
         <div className="flex-grow flex w-full min-w-max flex-col max-w- max-w-2xl">
-          <h2 className="text-4xl my-6 font-medium text-red-600">
+          <h2 data-aos="fade-down" data-aos-delay="1000" className="text-4xl my-6 font-medium text-red-600">
             Features
           </h2>
           <div className="grid grid-cols-2 gap-4 my-7">
             {dashboardMenu.map((item, idx) => (
-              <div key={idx} className="flex flex-col md:flex-row items-center">
-                <img src={item.icon} />
+              <div key={idx} data-aos="flip-down" data-aos-delay={(idx+1) * 300} className="flex flex-col md:flex-row items-center">
+                <Image width="40" height="40" layout="intrinsic" src={`/${item.icon}`} />
                 <div className="ml-2">
                   <p>
                     {item.title}
@@ -205,26 +208,27 @@ export default function Home() {
               </div>
             ))}
           </div>
-          <Button className="self-start" >
+          <Button data-aos="zoom-in-up" data-aos-delay={2000}
+           className="self-start" >
             Contact Us Now
           </Button>
         </div>
         <div className="max-w-xl flex-shrink">
-          <img src="blackMan.jpg" className="rounded-tl-3xl rounded-br-3xl" />
+          <Image width="350" height="500" layout="intrinsic" src="/blackMan.jpg" className="rounded-tl-3xl rounded-br-3xl" />
         </div>
       </section>
-      <section>
-        <h2 className="text-4xl text-center my-6 font-medium text-red-600">From Anywhere 24/7 we are always here</h2>
+      <section data-aos="fade-up" data-aos-delay="1500">
+        <h2 data-aos="fade-down" data-aos-delay="1000" className="text-4xl text-center my-6 font-medium text-red-600">From Anywhere 24/7 we are always here</h2>
         <Atlas/>
       </section>
-      <section>
+      <section data-aos="fade-up" data-aos-delay="1500">
         <Carousel />
       </section>
-      <section className="customer-view" >
+      <section className="customer-view" data-aos="fade-up" data-aos-delay="1100" >
         <h3 className="text-4xl my-6 text-center font-medium text-red-600">What Our Happy Customers are Saying!</h3>
         <div className="flex flex-col justify-center md:flex-row flex-wrap">
           {[1, 2, 3, 4].map((item, idx) => (
-            <QuoteCard key={idx} />
+            <QuoteCard data-aos="flip-right" data-aos-delay={(idx+1) * 300}key={idx} />
           ))}
         </div>
       </section>

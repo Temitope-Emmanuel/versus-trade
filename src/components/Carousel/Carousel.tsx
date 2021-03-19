@@ -5,6 +5,7 @@ import Button from '@material-ui/core/Button';
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io"
 import SwipeableViews from 'react-swipeable-views';
 import { autoPlay } from 'react-swipeable-views-utils';
+import Image from "next/image"
 
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
@@ -93,7 +94,8 @@ function SwipeableTextMobileStepper() {
           {carouselImage.map((img, idx) => (
             <div key={idx}>
               {Math.abs(activeStep - idx) <= 2 ? (
-                <img className={classes.img} src={`carouselImage/${img}`} alt="" />
+                <Image width="350" height="350" layout="responsive" 
+                 className={classes.img} src={`/carouselImage/${img}`} alt="" />
               ) : null}
             </div>
           ))}
