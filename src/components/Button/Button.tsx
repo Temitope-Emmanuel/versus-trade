@@ -1,5 +1,4 @@
 import React from "react"
-import {Button as MaterialButton} from "@material-ui/core"
 import {BaseModel} from "core/models/BaseModel"
 
 interface IProps extends BaseModel {

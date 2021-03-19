@@ -6,8 +6,6 @@ import {Button} from "components/Button"
 import { Footer } from "components/Footer"
 import { Carousel } from 'components/Carousel'
 import {Atlas} from "components/Atlas"
-import "aos/dist/aos.css"
-import AOS from "aos"
 
 const detailArray = [
   {
@@ -59,13 +57,7 @@ export default function Home() {
   const handleToggle = () => {
     setMobileOpen(!mobileOpen)
   }
-  React.useEffect(() => {
-    AOS.init({
-      easing: "ease-out",
-      duration: 1000
-    })
-  }, [])
-
+  
   return (
     <div>
       <div className="relative bg-white overflow-hidden">
