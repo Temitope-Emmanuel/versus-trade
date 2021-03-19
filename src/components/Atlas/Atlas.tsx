@@ -65,15 +65,15 @@ const Atlas = () => {
 
     return(
         <Box className={classes.root}>
-             <img data-aos="fade" data-aos-delay={700}
+             <img 
                  src={`/world/${personImageArr[0]}`}/>
-            <img  data-aos="fade" data-aos-delay={700} 
+            <img   
                src={`/world/${personImageArr[1]}`}/>
-            <img  data-aos="fade" data-aos-delay={900}
+            <img  
                 src={`/world/${personImageArr[2]}`}/>
-            <img  data-aos="fade" data-aos-delay={1000} 
+            <img  
                src={`/world/${personImageArr[3]}`}/>
-            <img  data-aos="fade" data-aos-delay={1100} 
+            <img   
                src={`/world/${personImageArr[4]}`}/>
         </Box>
     )
