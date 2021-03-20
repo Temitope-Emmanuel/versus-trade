@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 3001",
     "deploy:functions": "yarn build && cross-env NODE_ENV=production firebase deploy --only functions,hosting",
     "deploy": "yarn build && cross-env NODE_ENV=production firebase deploy"
   },
@@ -15,6 +15,7 @@
     "@material-ui/core": "^4.11.3",
     "@material-ui/lab": "^4.0.0-alpha.57",
     "aos": "^2.3.4",
+    "autoprefixer": "^10.2.5",
     "cross-env": "^7.0.3",
     "eslint": "^7.22.0",
     "firebase": "^8.3.0",
@@ -22,10 +23,12 @@
     "firebase-functions": "^3.13.2",
     "google-map-react": "^2.1.9",
     "next": "10.0.8",
+    "postcss": "^8.2.8",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-icons": "^4.2.0",
-    "react-swipeable-views": "^0.13.9"
+    "react-swipeable-views": "^0.13.9",
+    "tailwindcss": "^2.0.4"
   },
   "devDependencies": {
     "@types/aos": "^3.0.3",
@@ -34,9 +37,6 @@
     "@types/material-ui": "^0.21.8",
     "@types/node": "^14.14.33",
     "@types/react": "^17.0.3",
-    "autoprefixer": "^10.2.5",
-    "postcss": "^8.2.8",
-    "tailwindcss": "^2.0.3",
     "typescript": "^4.2.3"
   }
 }
