@@ -191,8 +191,8 @@ export default function Home() {
           ))}
         </div>
       </section>
-      <section data-aos="fade-up" className="flex flex-col-reverse justify-center md:flex-row md:px-5">
-        <div className="flex-grow flex w-full min-w-max flex-col max-w- max-w-2xl">
+      <section data-aos="fade-up" className="flex items-center flex-col-reverse justify-center md:flex-row md:px-5">
+        <div className="flex-grow flex w-full min-w-max flex-col items-center md:items-start max-w-2xl">
           <h2 data-aos="fade-down" className="text-4xl my-6 font-medium text-red-600">
             Features
           </h2>
@@ -204,12 +204,12 @@ export default function Home() {
                   <p>
                     {item.title}
                   </p>
-                </div>e
+                </div>
               </div>
             ))}
           </div>
           <Button data-aos="zoom-in-up"
-           className="self-start" >
+           className="md:self-start" >
             Contact Us Now
           </Button>
         </div>

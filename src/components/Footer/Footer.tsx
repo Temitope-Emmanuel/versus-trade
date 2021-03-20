@@ -12,7 +12,7 @@ const Footer = () => {
                 <div className="m-2 max-w-md">
                     <div className="flex flex-col md:flex-row items-center space-x-3">
                         <Image height="150" width="150" layout="intrinsic"
-                         className="w-10 h-10 object-cover" src="/quoteImage.jpg" />
+                         className="w-10 h-10 object-cover" src="/logo.png" />
                         <p className="my-2 text-center md:text-left">
                             It is a long established fact that a reader will be distracted by the readable content
                             of a page when looking at its layout. The point of using Lorem Ipsum is that it.
