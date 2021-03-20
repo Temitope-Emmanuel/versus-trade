@@ -19,16 +19,13 @@ const DetailCard:React.FC<IProps> = ({imageSrc,subtitle,title,...props}) => {
                 {/* <div className="absolute-center w-10 h-10" /> */}
                 <Image width="70" height="70" layout="intrinsic"
                  src={`/${imageSrc}`}
-                    data-aos="fade-down" data-aos-delay={300}
                 />
             </div>
             <h4 className="my-3 text-center font-semibold"
-                data-aos="fade-down" data-aos-delay={600}
             >
                 {title}
             </h4>
             <p className="text-center max-w-xs italic"
-                data-aos="fade-down" data-aos-delay={800}
             >
                 {subtitle}
             </p>

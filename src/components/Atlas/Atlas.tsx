@@ -67,15 +67,15 @@ const Atlas = () => {
 
     return(
         <Box className={classes.root}>
-             <Image width="50" height="50" layout="intrinsic" data-aos="fade" data-aos-delay={700}
+             <Image width="50" height="50" layout="intrinsic" 
                  src={`/world/${personImageArr[0]}`}/>
-            <Image width="50" height="50" layout="intrinsic"  data-aos="fade" data-aos-delay={700} 
+            <Image width="50" height="50" layout="intrinsic"   
                src={`/world/${personImageArr[1]}`}/>
-            <Image width="50" height="50" layout="intrinsic"  data-aos="fade" data-aos-delay={900}
+            <Image width="50" height="50" layout="intrinsic"  
                 src={`/world/${personImageArr[2]}`}/>
-            <Image width="100" height="100" layout="intrinsic"  data-aos="fade" data-aos-delay={1000} 
+            <Image width="100" height="100" layout="intrinsic" 
                src={`/world/${personImageArr[3]}`}/>
-            <Image width="50" height="50" layout="intrinsic"  data-aos="fade" data-aos-delay={1100} 
+            <Image width="50" height="50" layout="intrinsic" 
                src={`/world/${personImageArr[4]}`}/>
         </Box>
     )

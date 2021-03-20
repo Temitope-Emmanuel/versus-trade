@@ -5,8 +5,8 @@ import theme from "styles/theme"
 import type {AppProps} from "next/app"
 import {ThemeProvider} from "@material-ui/core/styles"
 import CssBaseline from "@material-ui/core/CssBaseline"
-import "aos/dist/aos.css"
-import AOS from "aos"
+// import "aos/dist/aos.css"
+// import AOS from "aos"
 
 
 
@@ -17,10 +17,10 @@ function MyApp({ Component, pageProps }:AppProps) {
     if(jssStyles){
       jssStyles.parentElement.removeChild(jssStyles)
     }
-    AOS.init({
-      easing: "ease-out",
-      duration: 1000
-    })
+    // AOS.init({
+    //   easing: "ease-out",
+    //   duration: 1000
+    // })
   
   },[])
   return(
