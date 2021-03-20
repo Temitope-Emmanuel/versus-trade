@@ -46,13 +46,6 @@ const useStyles = makeStyles((theme) => ({
       justifyContent:"center"
     }
   },
-  header: {
-    display: 'flex',
-    alignItems: 'center',
-    height: 50,
-    paddingLeft: theme.spacing(4),
-    backgroundColor: theme.palette.background.default,
-  },
   img: {
     display: 'block',
     overflow: 'hidden',
@@ -87,14 +80,14 @@ function SwipeableTextMobileStepper() {
       <div className={`${classes.root} max-w-xl mx-3`}>
         <AutoPlaySwipeableViews
           axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
-          index={activeStep}
+          index={1}
           onChangeIndex={handleStepChange}
           enableMouseEvents
         >
           {carouselImage.map((img, idx) => (
-            <div key={idx}>
+            <div key={idx} className="max-w-lg mx-auto" >
               {Math.abs(activeStep - idx) <= 2 ? (
-                <Image width="350" height="350" layout="responsive" 
+                <Image width="400" height="400" layout="responsive" 
                  className={classes.img} src={`/carouselImage/${img}`} alt="" />
               ) : null}
             </div>
