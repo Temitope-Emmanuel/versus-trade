@@ -114,6 +114,33 @@ export default function Home() {
       })
     }
   }
+  const loginWithFacebook = async () => {
+    try{
+      const response = await firebase.login({provider:'facebook',type:"popup"})
+      console.log(JSON.stringify(response,null,2))
+      if(response.additionalUserInfo.isNewUser){
+        alert({
+          type:"success",
+          title:"Sign Up successful",
+          message:"Congratulation on joining versus trade"
+        })
+      }else{
+        alert({
+          type:"success",
+          title:"Sign In successful",
+          message:`Welcome back ${response.user.displayName}`
+        })
+      }
+      router.push(`/user/${response.user.uid}/chat`)
+    }catch(err){
+      console.log("this is terr",err)
+      alert({
+        type:"error",
+        title:"Something went wrong, Unable to complete Request",
+        message:`Error:${err}`
+      })
+    }
+  }
   
 
 
@@ -130,7 +157,7 @@ export default function Home() {
               Sign up with Google
             </Typography>
           </MaterialButton>
-          <MaterialButton className="px-3 py-5">
+          <MaterialButton onClick={loginWithFacebook} className="px-3 py-5">
             <FaFacebookSquare className="mr-3" />
             <Typography>
               Sign up with Facebook
@@ -255,7 +282,7 @@ export default function Home() {
                   </a>
                     </div>
                     <div data-aos="zoom-in-left" className="mt-3 sm:mt-0 sm:ml-3">
-                      <a href="#" className={`
+                      <a href="https://wa.link/3df9ra" className={`
                       w-full flex items-center justify-center px-8 py-3 border 
                       border-transparent text-base font-medium rounded-md 
                       text-red-700 bg-red-100 hover:bg-red-200 

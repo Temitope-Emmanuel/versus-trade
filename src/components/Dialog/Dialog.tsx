@@ -19,7 +19,7 @@ interface IProps {
 
 const AlertDialogSlide:React.FC<IProps> = ({children,handleClose,open}) => {
     const theme = useTheme()
-    const mediaQuery = useMediaQuery(theme.breakpoints.down('md'))
+    const mediaQuery = useMediaQuery(theme.breakpoints.down('xs'))
   return (
       <Dialog
         open={open} fullScreen={mediaQuery}
