@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme:Theme) =>
                 width:"7em"
              },
              "& div:nth-child(3)":{
-               right:"10%",
+               left:"58%",
                top:"65%",
                height:"6.5em",
                 width:"6.5em"
@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme:Theme) =>
                 width:"3em",
              },
              "& div:nth-child(5)":{
-               right:"40%",
+               left:"40%",
                top:"10%",
                 height:"7em",
                 width:"7em"
