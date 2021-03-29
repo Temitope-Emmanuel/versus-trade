@@ -2,19 +2,19 @@ import React from "react"
 import { Transition } from "@headlessui/react"
 import { DetailCard, QuoteCard } from "components/Cards"
 import Image from "next/image"
-import {useRouter} from "next/router"
+import { useRouter } from "next/router"
 import { GoogleMaps } from "components/GoogleMaps"
 import { Footer } from "components/Footer"
 import { Carousel } from 'components/Carousel'
 import { Atlas } from "components/Atlas"
-import { DialogTitle, DialogContent, Button as MaterialButton,Typography, DialogContentText, DialogActions } from "@material-ui/core"
+import { DialogTitle, DialogContent, Button as MaterialButton, Typography, DialogContentText, DialogActions } from "@material-ui/core"
 import { Dialog } from "components/Dialog"
 export { Dialog } from "components/Dialog"
 import { FaFacebookSquare } from "react-icons/fa"
 import { FcGoogle } from "react-icons/fc"
 import { AiOutlineMail } from "react-icons/ai"
-import {useAppSelector} from "../src/store/hooks"
-import {useFirebase,isLoaded,isEmpty} from "react-redux-firebase"
+import { useAppSelector } from "../src/store/hooks"
+import { useFirebase, isLoaded, isEmpty } from "react-redux-firebase"
 import { useSelector } from "react-redux"
 import { useAlertService } from "core/utils/Alert/AlertContext"
 
@@ -86,99 +86,67 @@ export default function Home() {
   const handleClose = () => {
     setOpen(false);
   };
-  
+
   const loginWithGoogle = async () => {
-    try{
-      const response = await firebase.login({provider:'google',type:"popup"})
-      console.log(JSON.stringify(response,null,2))
-      if(response.additionalUserInfo.isNewUser){
+    try {
+      const response = await firebase.login({ provider: 'google', type: "popup" })
+      console.log(JSON.stringify(response, null, 2))
+      if (response.additionalUserInfo.isNewUser) {
         alert({
-          type:"success",
-          title:"Sign Up successful",
-          message:"Congratulation on joining versus trade"
+          type: "success",
+          title: "Sign Up successful",
+          message: "Congratulation on joining versus trade"
         })
-      }else{
+      } else {
         alert({
-          type:"success",
-          title:"Sign In successful",
-          message:`Welcome back ${response.user.displayName}`
-        })
-      }
-      router.push(`/user/${response.user.uid}/chat`)
-    }catch(err){
-      console.log("this is terr",err)
-      alert({
-        type:"error",
-        title:"Something went wrong, Unable to complete Request",
-        message:`Error:${err}`
-      })
-    }
-  }
-  const loginWithFacebook = async () => {
-    try{
-      const response = await firebase.login({provider:'facebook',type:"popup"})
-      console.log(JSON.stringify(response,null,2))
-      if(response.additionalUserInfo.isNewUser){
-        alert({
-          type:"success",
-          title:"Sign Up successful",
-          message:"Congratulation on joining versus trade"
-        })
-      }else{
-        alert({
-          type:"success",
-          title:"Sign In successful",
-          message:`Welcome back ${response.user.displayName}`
+          type: "success",
+          title: "Sign In successful",
+          message: `Welcome back ${response.user.displayName}`
         })
       }
       router.push(`/user/${response.user.uid}/chat`)
-    }catch(err){
-      console.log("this is terr",err)
+    } catch (err) {
+      console.log("this is terr", err)
       alert({
-        type:"error",
-        title:"Something went wrong, Unable to complete Request",
-        message:`Error:${err}`
+        type: "error",
+        title: "Something went wrong, Unable to complete Request",
+        message: `Error:${err}`
       })
     }
   }
   
+  const loginWithFacebook = async () => {
+    try {
+      const response = await firebase.login({ provider: 'facebook', type: "popup" })
+      console.log(JSON.stringify(response, null, 2))
+      if (response.additionalUserInfo.isNewUser) {
+        alert({
+          type: "success",
+          title: "Sign Up successful",
+          message: "Congratulation on joining versus trade"
+        })
+      } else {
+        alert({
+          type: "success",
+          title: "Sign In successful",
+          message: `Welcome back ${response.user.displayName}`
+        })
+      }
+      router.push(`/user/${response.user.uid}/chat`)
+    } catch (err) {
+      console.log("this is terr", err)
+      alert({
+        type: "error",
+        title: "Something went wrong, Unable to complete Request",
+        message: `Error:${err}`
+      })
+    }
+  }
+
 
 
   return (
     <>
-      <Dialog open={open} handleClose={handleDialogToggle} >
-        <DialogTitle id="alert-dialog-slide-title">
-          Join VersusTrade
-    </DialogTitle>
-        <DialogContent className="flex flex-col">
-          <MaterialButton onClick={loginWithGoogle} className="px-3 py-5">
-            <FcGoogle className="mr-3" />
-            <Typography>
-              Sign up with Google
-            </Typography>
-          </MaterialButton>
-          <MaterialButton onClick={loginWithFacebook} className="px-3 py-5">
-            <FaFacebookSquare className="mr-3" />
-            <Typography>
-              Sign up with Facebook
-            </Typography>
-          </MaterialButton>
-          <MaterialButton className="px-3 py-5">
-            <AiOutlineMail className="mr-3" />
-            <Typography>
-              Email
-              </Typography>
-          </MaterialButton>
-        </DialogContent>
-        <DialogActions className="">
-          <MaterialButton onClick={handleClose} color="primary">
-            Disagree
-          </MaterialButton>
-          <MaterialButton onClick={handleClose} color="primary">
-            Agree
-          </MaterialButton>
-        </DialogActions>
-      </Dialog>
       <div>
         <div className="relative bg-white overflow-hidden">
           <div className="mx-auto h-75v">
@@ -357,7 +325,39 @@ export default function Home() {
         </div>
         <Footer />
       </div>
-
+      <Dialog open={open} handleClose={handleDialogToggle} >
+        <DialogTitle id="alert-dialog-slide-title">
+          Join VersusTrade
+      </DialogTitle>
+        <DialogContent className="flex flex-col">
+          <MaterialButton onClick={loginWithGoogle} className="px-3 py-5">
+            <FcGoogle className="mr-3" />
+            <Typography>
+              Sign up with Google
+            </Typography>
+          </MaterialButton>
+          <MaterialButton onClick={loginWithFacebook} className="px-3 py-5">
+            <FaFacebookSquare className="mr-3" />
+            <Typography>
+              Sign up with Facebook
+            </Typography>
+          </MaterialButton>
+          <MaterialButton className="px-3 py-5">
+            <AiOutlineMail className="mr-3" />
+            <Typography>
+              Email
+              </Typography>
+          </MaterialButton>
+        </DialogContent>
+        <DialogActions className="">
+          <MaterialButton onClick={handleClose} color="primary">
+            Disagree
+          </MaterialButton>
+          <MaterialButton onClick={handleClose} color="primary">
+            Agree
+          </MaterialButton>
+        </DialogActions>
+      </Dialog>
     </>
   )
 }
