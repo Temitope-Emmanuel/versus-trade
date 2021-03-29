@@ -11,7 +11,7 @@ import "aos/dist/aos.css"
 import { Provider } from "react-redux"
 import { wrapper, newStore } from "../src/store"
 import { createFirestoreInstance } from "redux-firestore"
-import { ReactReduxFirebaseConfig, ReactReduxFirebaseProvider, ReactReduxFirebaseProviderProps, useFirebase } from "react-redux-firebase"
+import { ReactReduxFirebaseConfig, ReactReduxFirebaseProvider, ReactReduxFirebaseProviderProps } from "react-redux-firebase"
 import firebase from "firebase/app"
 
 import { AlertServiceProvider } from "../src/core/utils/Alert/AlertContext"
