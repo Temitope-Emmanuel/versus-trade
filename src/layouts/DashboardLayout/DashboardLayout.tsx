@@ -129,12 +129,12 @@ const DashboardMenu = [
     },
     {
       name:"Transaction",
-      link:"/transaction",
+      link:"transaction",
       icon:<GrTransaction/>
     },
     {
       name:"User",
-      link:"/users",
+      link:"users",
       icon:<FaUserAlt/>
     }
   ]

@@ -6,7 +6,7 @@ import {Typography,Box} from "@material-ui/core"
 const Transaction = () => {
     return(
         <Box>
-            <Typography>This is the transaction page</Typography>
+            <Typography>This is the user page</Typography>
         </Box>
     )
 }
