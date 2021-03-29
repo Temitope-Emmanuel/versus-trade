@@ -4,6 +4,6 @@ export interface BaseModel {
 }
 
 export interface DataBaseModel {
-    id:string;
-    createdAt:Date | string;
+    id?:string;
+    createdAt?:Date | string;
 }

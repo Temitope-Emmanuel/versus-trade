@@ -9,17 +9,11 @@ const initialState: SystemState = {
     isLoading:true,
     pageTitle:"",
     currentUser: {
-        // id: "",
-        // auth_token: "",
-        // fullname: "",
-        // phoneNumber: 0,
-        // email: "",
-        // expirationTime: 0,
-        // personType: 0,
-        // callingCode: 0,
-        // picture_url:"",
-        // churchId: 0,
-        // role: []
+        email:"",
+        profileImage:"",
+        providerData:[],
+        role:"user",
+        
     }
 }
 
