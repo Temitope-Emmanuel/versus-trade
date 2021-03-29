@@ -66,7 +66,7 @@ const useStyles = makeStyles((theme: Theme) =>
         backgroundRepeat:"no-repeat",
         color:"white",
         "& svg":{
-            fontSize:"2rem",
+            fontSize:"1.75rem",
             color:"white"
         }
       }

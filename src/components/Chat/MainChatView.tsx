@@ -1,5 +1,5 @@
 import React from "react"
-import { Box, Typography, Slide, useTheme,useMediaQuery, createStyles, Tab, Tabs, Theme, withStyles } from "@material-ui/core"
+import { Box,makeStyles, Typography, Slide, useTheme,useMediaQuery,Grow, createStyles, Tab, Tabs, Theme, withStyles } from "@material-ui/core"
 import { Badge } from "components/Badge"
 import { RiMore2Fill } from "react-icons/ri"
 import TouchRipple from "@material-ui/core/ButtonBase"
@@ -9,6 +9,8 @@ import ListChat from "./ListChat"
 import SendChat from "./SendMessage"
 import { IAccount } from "core/models/Account"
 import { IChat } from "core/models/Chat"
+import {BiStar} from "react-icons/bi"
+import {BsStarFill} from "react-icons/bs"
 
 const chatList: SendMessageToUser[] = [
     {
@@ -119,9 +121,25 @@ const StyledTab = withStyles((theme: Theme) =>
     }),
 )((props: StyledTabProps) => <Tab disableRipple {...props} />);
 
+const useStyles = makeStyles((theme) => createStyles({
+    root:{},
+    favoriteContainer:{
+        height:"2rem",
+        width:"2rem",
+        "& > *" :{
+            margin:"auto",
+            top:0,
+            bottom:0,
+            right:0,
+            left:0
+        }
+    }
+}))
 
 const MainChatView = () => {
+    const classes = useStyles()
     const [open, setOpen] = React.useState(false)
+    const [favorite,setFavorite] = React.useState(false)
     const theme = useTheme()
     const [currentChat, setCurrentChat] = React.useState(0)
     const mediaQuery = useMediaQuery(theme.breakpoints.up("sm"))
@@ -137,6 +155,10 @@ const MainChatView = () => {
     const handleChangeIndex = (index: number) => {
         setValue(index);
       };
+
+    const handleFavoriteToggle = () => {
+        setFavorite(!favorite)
+    }
 
     React.useEffect(() => {
         if(mediaQuery){
@@ -174,12 +196,20 @@ const MainChatView = () => {
         <Box className="rounded-2xl overflow-hidden mx-auto shadow-xl flex">
             <Slide direction="right" in={open} mountOnEnter unmountOnExit>
                 <Box className="mainChatListView relative w-2/6 mr-1">
-                    <Box className="bg-blue-900 pl-5 py-3 flex items-center">
+                    <Box className="bg-blue-900 px-3 py-2 flex items-center justify-between">
                         <Box className="flex items-center space-x-3">
                             <Badge />
                             <Typography className="font-medium text-white">
                                 John Doe
                             </Typography>
+                        </Box>
+                        <Box className={`relative flex ${classes.favoriteContainer}`}>
+                            <Grow mountOnEnter unmountOnExit in={favorite} timeout={{enter:500}} >
+                                <BsStarFill onClick={handleFavoriteToggle} className="text-3xl absolute cursor-pointer"/>
+                            </Grow>
+                            <Grow mountOnEnter unmountOnExit in={!favorite} timeout={{enter:500}} >
+                                <BiStar onClick={handleFavoriteToggle} className="text-3xl absolute cursor-pointer"/>
+                            </Grow>
                         </Box>
                     </Box>
                     <SwipeableViews
@@ -192,7 +222,7 @@ const MainChatView = () => {
                                 {[1, 2, 3, 4, 5, 6].map((item, idx) => (
                                     <TouchRipple className="w-full">
                                         <Box key={idx} className={
-                                            `flex p-5 ml-0 w-full justify-start items-center  space-x-3 cursor-pointer
+                                            `flex p-3 ml-0 w-full justify-start items-center  space-x-2 cursor-pointer
                                     ${currentChat === idx ? 'bg-blue-300' : 'hover:bg-gray-200 '} 
                                     `
                                         } onClick={handleCurrentChat(idx)}>
@@ -214,7 +244,7 @@ const MainChatView = () => {
                             {[1, 2].map((item, idx) => (
                                 <TouchRipple className="w-full">
                                     <Box key={idx} className={
-                                        `flex p-5 ml-0 w-full justify-start items-center  space-x-3 cursor-pointer
+                                        `flex p-3 ml-0 w-full justify-start items-center  space-x-2 cursor-pointer
                                     ${currentChat === idx ? 'bg-blue-300' : 'hover:bg-gray-200 '} 
                                     `
                                     } onClick={handleCurrentChat(idx)}>
@@ -243,7 +273,7 @@ const MainChatView = () => {
                 </Box>
             </Slide>
             <Box className="flex-1 chatMessageView bg-gray-100">
-                <Box className="bg-blue-900 py-3 p-5 flex items-center">
+                <Box className="bg-blue-900 py-2 p-5 flex items-center">
                     <Box className="flex justify-between items-center w-full">
                         <Box className="flex items-center space-x-3">
                             <Badge />

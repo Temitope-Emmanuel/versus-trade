@@ -50,7 +50,7 @@ const BadgeAvatars:React.FC<IProps> =  (props) => {
         }}
         variant="dot" {...props}
       >
-        <Avatar style={{height:"3.5rem",width:"3.5rem"}} alt="Remy Sharp" src="/profileImage.jpg" />
+        <Avatar style={{height:"2.5rem",width:"2.5rem"}} alt="Remy Sharp" src="/profileImage.jpg" />
       </StyledBadge>
   );
 }

@@ -7,7 +7,7 @@ import {MainChatView} from "components/Chat"
 const Chat = () => {
     return(
         <DashboardLayout>
-            <Box className="mx-auto max-w-5xl">
+            <Box className="mx-auto max-w-4xl">
                 <MainChatView/>
             </Box>
         </DashboardLayout>

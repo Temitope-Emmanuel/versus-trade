@@ -7,15 +7,14 @@ import { GoogleMaps } from "components/GoogleMaps"
 import { Footer } from "components/Footer"
 import { Carousel } from 'components/Carousel'
 import { Atlas } from "components/Atlas"
-import { DialogTitle, DialogContent, Button as MaterialButton, Typography, DialogContentText, DialogActions } from "@material-ui/core"
+import { DialogTitle, DialogContent, Button as MaterialButton, Typography, DialogActions } from "@material-ui/core"
 import { Dialog } from "components/Dialog"
 export { Dialog } from "components/Dialog"
 import { FaFacebookSquare } from "react-icons/fa"
 import { FcGoogle } from "react-icons/fc"
 import { AiOutlineMail } from "react-icons/ai"
 import { useAppSelector } from "../src/store/hooks"
-import { useFirebase, isLoaded, isEmpty } from "react-redux-firebase"
-import { useSelector } from "react-redux"
+import { useFirebase, isEmpty } from "react-redux-firebase"
 import { useAlertService } from "core/utils/Alert/AlertContext"
 
 
@@ -69,12 +68,13 @@ const dashboardMenu = [
 export default function Home() {
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = React.useState(false)
+  const auth = useAppSelector(state => state.firebase.auth)
+  const profile = useAppSelector(state => state.firebase.profile)
   const alert = useAlertService()
   const firebase = useFirebase()
   const handleToggle = () => {
     setMobileOpen(!mobileOpen)
   }
-
   const [open, setOpen] = React.useState(false);
   const handleDialogToggle = () => {
     setOpen(!open)
@@ -114,7 +114,7 @@ export default function Home() {
       })
     }
   }
-  
+
   const loginWithFacebook = async () => {
     try {
       const response = await firebase.login({ provider: 'facebook', type: "popup" })
@@ -141,6 +141,10 @@ export default function Home() {
         message: `Error:${err}`
       })
     }
+  }
+
+  const PushToProfile = () => {
+    router.push(`/user/${auth}.uid}/chat`)
   }
 
 
@@ -240,19 +244,19 @@ export default function Home() {
                     Where better transactions are done
                 </p>
                   <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
-                    <div data-aos="zoom-in-right" onClick={handleDialogToggle} className="rounded-md shadow">
-                      <a href="#" className={`
+                    <div data-aos="zoom-in-right" onClick={!isEmpty(profile) ? PushToProfile : handleDialogToggle} className="rounded-md shadow">
+                      <span className={`
                       w-full flex items-center justify-center px-8 py-3 border 
-                      border-transparent text-base font-medium rounded-md 
+                      border-transparent text-base font-medium rounded-md cursor-pointer
                       text-white bg-red-600 hover:bg-red-700 md:py-4 
                       md:text-lg md:px-10`}>
-                        Get started
-                  </a>
+                        {!isEmpty(profile) ? "View Profile" : "Get started"}
+                  </span>
                     </div>
                     <div data-aos="zoom-in-left" className="mt-3 sm:mt-0 sm:ml-3">
                       <a href="https://wa.link/3df9ra" className={`
                       w-full flex items-center justify-center px-8 py-3 border 
-                      border-transparent text-base font-medium rounded-md 
+                      border-transparent text-base font-medium rounded-md cursor-pointer
                       text-red-700 bg-red-100 hover:bg-red-200 
                       md:py-4 md:text-lg md:px-10`}>
                         Chat Now

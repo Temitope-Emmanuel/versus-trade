@@ -7,7 +7,7 @@ import {formatDistanceToNow} from "date-fns"
 const useStyles = makeStyles((theme) => createStyles({
     root:{
         display:"flex",
-        margin:theme.spacing(2.5,0)
+        margin:theme.spacing(1.5,0)
     },
     avatarContainer:{
         position:"relative",
@@ -29,14 +29,14 @@ const useStyles = makeStyles((theme) => createStyles({
             marginBottom:"12px",
             lineHeight:"24px",
             position:"relative",
-            padding:"10px 20px",
+            padding:"5px 12.5px",
             borderRadius:"25px"
         },
         "&  p::before,& p::after":{
             content:"' '",
             position:"absolute",
             bottom:0,
-            height:"25px"
+            height:"20px"
         },
         "& span":{
             fontSize:".75rem"
