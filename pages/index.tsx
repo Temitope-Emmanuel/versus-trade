@@ -143,6 +143,10 @@ export default function Home() {
     }
   }
 
+  const signInWithEmail = async () => {
+
+  }
+
   const PushToProfile = () => {
     router.push(`/user/${auth}.uid}/chat`)
   }
@@ -251,7 +255,7 @@ export default function Home() {
                       text-white bg-red-600 hover:bg-red-700 md:py-4 
                       md:text-lg md:px-10`}>
                         {!isEmpty(profile) ? "View Profile" : "Get started"}
-                  </span>
+                      </span>
                     </div>
                     <div data-aos="zoom-in-left" className="mt-3 sm:mt-0 sm:ml-3">
                       <a href="https://wa.link/3df9ra" className={`
@@ -282,32 +286,6 @@ export default function Home() {
             ))}
           </div>
         </section>
-        {/* <section data-aos="fade-up" className="flex items-center flex-col-reverse justify-center md:flex-row md:px-5">
-        <div className="flex-grow flex w-full min-w-max flex-col items-center md:items-start max-w-2xl">
-          <h2 data-aos="fade-down" className="text-4xl my-6 font-medium text-red-600">
-            Features
-          </h2>
-          <div className="grid grid-cols-2 gap-4 my-7">
-            {dashboardMenu.map((item, idx) => (
-              <div key={idx} data-aos="flip-down" className="flex flex-col md:flex-row items-center">
-                <Image width="40" height="40" layout="intrinsic" src={`/${item.icon}`} />
-                <div className="ml-2">
-                  <p>
-                    {item.title}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <Button data-aos="zoom-in-up"
-           className="md:self-start" >
-            Contact Us Now
-          </Button>
-        </div>
-        <div className="max-w-xl flex-shrink">
-          <Image width="350" height="500" layout="intrinsic" src="/blackMan.jpg" className="rounded-tl-3xl rounded-br-3xl" />
-        </div>
-      </section> */}
         <section data-aos="fade-up" >
           <h2 data-aos="fade-down" className="text-4xl text-center my-6 font-medium text-red-600">From Anywhere 24/7 we are always here</h2>
           <Atlas />
@@ -323,44 +301,39 @@ export default function Home() {
             ))}
           </div>
         </section>
-        <div>
-          <h3 className="text-4xl my-6 text-center font-medium text-red-600">Contact Us</h3>
-          <GoogleMaps />
-        </div>
+        
         <Footer />
       </div>
-      <Dialog open={open} handleClose={handleDialogToggle} >
-        <DialogTitle id="alert-dialog-slide-title">
-          Join VersusTrade
-      </DialogTitle>
-        <DialogContent className="flex flex-col">
-          <MaterialButton onClick={loginWithGoogle} className="px-3 py-5">
-            <FcGoogle className="mr-3" />
-            <Typography>
-              Sign up with Google
-            </Typography>
+      <Dialog open={open} handleClose={handleDialogToggle} title="Join VersusTrade"
+        dialogAction={() => (
+          <>
+            <MaterialButton onClick={handleClose} color="primary">
+              Disagree
           </MaterialButton>
-          <MaterialButton onClick={loginWithFacebook} className="px-3 py-5">
-            <FaFacebookSquare className="mr-3" />
-            <Typography>
-              Sign up with Facebook
+            <MaterialButton onClick={handleClose} color="primary">
+              Agree
+            </MaterialButton>
+          </>
+        )}
+      >
+        <MaterialButton onClick={loginWithGoogle} className="px-3 py-5">
+          <FcGoogle className="mr-3" />
+          <Typography>
+            Sign up with Google
             </Typography>
-          </MaterialButton>
-          <MaterialButton className="px-3 py-5">
-            <AiOutlineMail className="mr-3" />
-            <Typography>
-              Email
+        </MaterialButton>
+        <MaterialButton onClick={loginWithFacebook} className="px-3 py-5">
+          <FaFacebookSquare className="mr-3" />
+          <Typography>
+            Sign up with Facebook
+            </Typography>
+        </MaterialButton>
+        <MaterialButton className="px-3 py-5">
+          <AiOutlineMail className="mr-3" />
+          <Typography>
+            Email
               </Typography>
-          </MaterialButton>
-        </DialogContent>
-        <DialogActions className="">
-          <MaterialButton onClick={handleClose} color="primary">
-            Disagree
-          </MaterialButton>
-          <MaterialButton onClick={handleClose} color="primary">
-            Agree
-          </MaterialButton>
-        </DialogActions>
+        </MaterialButton>
       </Dialog>
     </>
   )

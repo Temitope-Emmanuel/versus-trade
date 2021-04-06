@@ -35,11 +35,12 @@ const StyledBadge = withStyles((theme: Theme) =>
 )(Badge);
 
 interface IProps {
-    className?:string;
-    style?:object
+  className?:string;
+  img:string;
+  style?:object
 }
 
-const BadgeAvatars:React.FC<IProps> =  (props) => {
+const BadgeAvatars:React.FC<IProps> =  ({img,...props}) => {
 
   return (
       <StyledBadge
@@ -50,7 +51,7 @@ const BadgeAvatars:React.FC<IProps> =  (props) => {
         }}
         variant="dot" {...props}
       >
-        <Avatar style={{height:"2.5rem",width:"2.5rem"}} alt="Remy Sharp" src="/profileImage.jpg" />
+        <Avatar style={{height:"2.5rem",width:"2.5rem"}} alt="Remy Sharp" src={img || "/profileImage.jpg"} />
       </StyledBadge>
   );
 }

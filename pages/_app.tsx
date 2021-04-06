@@ -31,9 +31,9 @@ function MyApp({ Component, pageProps }: {
     presence: 'presence',
     sessions: 'sessions',
     // autoPopulateProfile:true,
-
-
-
+    autoPopulateProfile:true,
+    useFirestoreForStorageMeta:true,
+    
     // Adds role based value on the saved user data
     profileFactory: user => {
       const profile = {

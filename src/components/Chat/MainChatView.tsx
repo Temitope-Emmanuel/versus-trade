@@ -1,16 +1,18 @@
 import React from "react"
 import { Box,makeStyles, Typography, Slide, useTheme,useMediaQuery,Grow, createStyles, Tab, Tabs, Theme, withStyles } from "@material-ui/core"
+import {useRouter} from "next/router"
 import { Badge } from "components/Badge"
 import { RiMore2Fill } from "react-icons/ri"
 import TouchRipple from "@material-ui/core/ButtonBase"
 import SwipeableViews from "react-swipeable-views"
-import { SendMessageToUser } from "core/models/Chat"
 import ListChat from "./ListChat"
 import SendChat from "./SendMessage"
 import { IAccount } from "core/models/Account"
-import { IChat } from "core/models/Chat"
 import {BiStar} from "react-icons/bi"
 import {BsStarFill} from "react-icons/bs"
+import { useAppSelector } from "store/hooks"
+import {useFirestoreConnect,isEmpty} from "react-redux-firebase"
+import {IChat,SendMessageToUser} from "core/models/Chat"
 
 const chatList: SendMessageToUser[] = [
     {
@@ -142,10 +144,20 @@ const MainChatView = () => {
     const [favorite,setFavorite] = React.useState(false)
     const theme = useTheme()
     const [currentChat, setCurrentChat] = React.useState(0)
+    const currentUser = useAppSelector(state => state.firebase.profile)
     const mediaQuery = useMediaQuery(theme.breakpoints.up("sm"))
+    const router = useRouter()
+    const currentMessages = "currentMessages"
+    const messages = useAppSelector((state) => state.firestore.ordered[currentMessages])
     const toggleOpen = () => {
         setOpen(!open)
     }
+
+    console.log({messages})
+
+    useFirestoreConnect(() => [
+        {collection:`chatMessages/${router.query.userId}/messages`,storeAs:currentMessages}
+    ])
 
     const [value, setValue] = React.useState(0);
 
@@ -191,16 +203,15 @@ const MainChatView = () => {
         id: "sdnksodisldjl"
 
     }
-
     return (
         <Box className="rounded-2xl overflow-hidden mx-auto shadow-xl flex">
             <Slide direction="right" in={open} mountOnEnter unmountOnExit>
                 <Box className="mainChatListView relative w-2/6 mr-1">
                     <Box className="bg-blue-900 px-3 py-2 flex items-center justify-between">
                         <Box className="flex items-center space-x-3">
-                            <Badge />
+                            <Badge img={currentUser.profileImage} />
                             <Typography className="font-medium text-white">
-                                John Doe
+                                {currentUser.email}
                             </Typography>
                         </Box>
                         <Box className={`relative flex ${classes.favoriteContainer}`}>
@@ -219,14 +230,14 @@ const MainChatView = () => {
                     >
                         <TabPanel value={value} index={0}>
                             <Box className="chatListContainer">
-                                {[1, 2, 3, 4, 5, 6].map((item, idx) => (
+                                {[1].map((item, idx) => (
                                     <TouchRipple className="w-full">
                                         <Box key={idx} className={
                                             `flex p-3 ml-0 w-full justify-start items-center  space-x-2 cursor-pointer
                                     ${currentChat === idx ? 'bg-blue-300' : 'hover:bg-gray-200 '} 
                                     `
                                         } onClick={handleCurrentChat(idx)}>
-                                            <Badge className="ml-0" />
+                                            <Badge img={""} className="ml-0" />
                                             <Box>
                                                 <p className="font-semibold mb-1 text-lg font-raleway">
                                                     Frank Powell
@@ -248,7 +259,7 @@ const MainChatView = () => {
                                     ${currentChat === idx ? 'bg-blue-300' : 'hover:bg-gray-200 '} 
                                     `
                                     } onClick={handleCurrentChat(idx)}>
-                                        <Badge className="ml-0" />
+                                        <Badge img="" className="ml-0" />
                                         <Box>
                                             <p className="font-semibold mb-1 text-lg font-raleway">
                                                 Frank Powell
@@ -276,7 +287,7 @@ const MainChatView = () => {
                 <Box className="bg-blue-900 py-2 p-5 flex items-center">
                     <Box className="flex justify-between items-center w-full">
                         <Box className="flex items-center space-x-3">
-                            <Badge />
+                            <Badge img={""} />
                             <Typography className="font-medium text-white">
                                 Frank Powell
                             </Typography>
@@ -288,9 +299,15 @@ const MainChatView = () => {
                         </TouchRipple>
                     </Box>
                 </Box>
-                <Box>
-                    <ListChat currentChat={currentChatAccount} />
-                    <SendChat currentChatAccount={defaultUser} />
+                <Box className="flex flex-col justify-center items-center" style={{height:"65vh"}}>
+                {
+                    isEmpty(messages) ? 
+                        <SendChat currentChatAccount={defaultUser} />
+                    : 
+                    <>
+                        <ListChat currentChat={currentChatAccount} />
+                    </>
+                }
                 </Box>
             </Box>
         </Box>

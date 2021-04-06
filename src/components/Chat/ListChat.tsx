@@ -1,11 +1,9 @@
 import React from "react"
 import {Box} from "@material-ui/core"
 import {makeStyles,createStyles} from "@material-ui/core/styles"
-import { IAccount } from "core/models/Account"
 import {IChat} from "core/models/Chat"
 import Message from "./Message"
-import { useDispatch, useAppSelector } from "store/hooks"
-import {AppState} from "store"
+import { useDispatch} from "store/hooks"
 import { useAlertService } from "core/utils/Alert/AlertContext"
 
 const useStyles = makeStyles((theme) => createStyles({
@@ -38,13 +36,6 @@ const ListMessage:React.FC<IProps> = ({currentChat}) => {
     
     React.useEffect(() => {
     },[])
-
-    // React.useEffect(() => {
-    //     if(currentMessage[currentMessage.length - 1] && currentMessage[currentMessage.length - 1].ownerIsCurrentUser){
-    //         scrollBottom()
-    //     }
-    // },[currentMessage])
-
     return(
         <Box className={classes.root}>
             {
