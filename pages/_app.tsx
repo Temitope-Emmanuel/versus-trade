@@ -36,11 +36,13 @@ function MyApp({ Component, pageProps }: {
     
     // Adds role based value on the saved user data
     profileFactory: user => {
+     console.log({user})
       const profile = {
         email: user.email || user.providerData[0].email,
         role: 'user',
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        profileImage:user.photoURL
+        profileImage:user.photoURL,
+        id:user.uid
       } as any
 
       if (user.providerData && user.providerData.length) {

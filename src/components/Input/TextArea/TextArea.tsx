@@ -39,7 +39,7 @@ const MultilineTextFields:React.FC<IProps> = ({name,label,variant,...props}) => 
                             rows={4}
                             variant={variant || "outlined"}
                             helperText={form.touched[name] && form.errors[name] ? form.errors[name] : undefined }
-                            {...props}
+                            {...props} {...field}
                         />
                     </FormControl>
                 )

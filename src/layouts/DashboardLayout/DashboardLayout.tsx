@@ -147,6 +147,7 @@ const MiniDrawer:React.FC<{}> = ({children}) => {
   const [open, setOpen] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const currentUser = useAppSelector(state => state.firebase.profile)
+  const alerts = useAppSelector(state => state.chat.alerts)
   const router = useRouter()
   const dialog = useAlertService()
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -272,8 +273,8 @@ const MiniDrawer:React.FC<{}> = ({children}) => {
             <IconButton aria-label="show 4 new mails" color="inherit">
               <AiOutlineSearch/>
             </IconButton>
-            <IconButton aria-label="show 4 new mails" color="inherit">
-              <Badge badgeContent={4} color="secondary">
+            <IconButton aria-label={`show ${alerts.length} new mails`} color="inherit">
+              <Badge badgeContent={alerts.length} color="secondary">
                 <HiOutlineMail />
               </Badge>
             </IconButton>

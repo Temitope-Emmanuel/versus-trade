@@ -148,7 +148,7 @@ export default function Home() {
   }
 
   const PushToProfile = () => {
-    router.push(`/user/${auth}.uid}/chat`)
+    router.push(`/user/${profile?.id}}/chat`)
   }
 
 

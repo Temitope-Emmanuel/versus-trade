@@ -8,6 +8,7 @@ const initialState:ChatState = {
         providerData:[],
         role:"user",
     },
+    alerts:[],
     currentMessages:[]
 }
 
@@ -27,12 +28,22 @@ const chatReducer = (state = initialState,action:Action):ChatState => {
         case ActionTypes.LOAD_CHAT_MESSAGE:
             return {
                 ...state,
-                currentMessages:action.payload
+                currentMessages:[...state.currentMessages,...action.payload]
             }
         case ActionTypes.SET_CURRENT_CHAT_PROFILE:
             return {
                 ...state,
                 currentChatProfile:action.payload
+            }
+        case ActionTypes.SET_MESSAGE_ALERT:
+            return {
+                ...state,
+                alerts:[...state.alerts,action.payload]
+            }
+        case ActionTypes.CLEAR_ALERT_MESSAGE:
+            return {
+                ...state,
+                alerts:[...state.alerts.filter(item => item !== action.payload)]
             }
         default:
             return state

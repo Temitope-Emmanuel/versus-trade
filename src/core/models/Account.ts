@@ -6,4 +6,5 @@ export interface IAccount extends DataBaseModel {
     providerData:{}[];
     role:"user" | "admin";
     profileImage:string;
+    hasChat?:boolean
 }

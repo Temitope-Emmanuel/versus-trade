@@ -15,23 +15,23 @@ import { AiFillIdcard } from "react-icons/ai"
 import { BiCoinStack, BiImageAdd } from "react-icons/bi"
 import { Button as MaterialButton } from "components/Button"
 import { useAppSelector, useDispatch } from "store/hooks"
-import { useFirestoreConnect } from "react-redux-firebase"
 import {
-    addChatMessage
+    addChatMessage,addTransaction
 } from "store/chat/actions"
 
 const useStyles = makeStyles((theme) => createStyles({
     root: {
-        boxShadow: "0px 0px 6px #00000029",
         borderRadius: "2.5px",
         display: "flex",
-        backgroundColor: "white",
         alignItems: "center",
-        // width:"85%",
+        width:"85%",
         padding: theme.spacing(2),
-        justifyContent: "space-between",
+        justifyContent: "space-evenly",
         "& svg": {
-            fontSize: "1.75rem"
+            backgroundColor:theme.palette.primary.light,
+            borderRadius:"50%",
+            padding:".5rem",
+            fontSize:"2.5rem"
         },
         // "& svg:first-child":{
         //     color:"#B603C9"
@@ -70,8 +70,12 @@ const useStyles = makeStyles((theme) => createStyles({
 const initialValues = {
     message: ""
 }
+const initialTransactionValues = {
+    comment: ""
+}
 
 type messageForm = typeof initialValues
+type transactionMessageForm = typeof initialTransactionValues
 
 interface IProps {
     currentChatAccount: IAccount;
@@ -95,45 +99,27 @@ const SendMessage: React.FC<IProps> = ({ currentChatAccount }) => {
     const [open, setOpen] = React.useState(false)
     const [selectedTransfer, setSelectedTransfer] = React.useState(null)
     const [image, setImage] = React.useState(defaultImageStorage)
+    const bottomDiv = React.useRef<Element | null>(null)
     const [totalTransactionImage, setTotalTransactionImage] = React.useState<typeof defaultImageStorage[]>([])
-
-    console.log({currentAuth,currentUser})
-
-    // React.useEffect(() => {
-    //     dispatch(addChatMessage({
-    //         author:{
-    //             id:currentAuth.uid,
-    //             photoURL:currentUser.profileImage,
-    //             username:currentUser.email,
-    //         },
-    //         createdAt:firebase.firestore.FieldValue.serverTimestamp(),
-    //         message:"This is the first message",
-    //     },dialog))
-    // },[])
-
-    const handleSubmit = async (values: typeof initialTransactionValue, { ...actions }: any) => {
+    
+    const handleTransactionSubmit = async (values: transactionMessageForm, { ...actions }: any) => {
         try {
             actions.setSubmitting(true)
-            console.log("reaching here")
-            const result = await firebase.uploadFiles(filesPath, totalTransactionImage.map(item => item.file), `${filesPath}/keys`, {
+            await dispatch(addTransaction({
+                comment:values.comment,
+                files:totalTransactionImage.map(item => item.file),
+                status:"Pending",
+                type:selectedTransfer
+            },dialog))
 
-            })
-            console.log({ result })
             setTotalTransactionImage([])
+            setImage(defaultImageStorage)
             setOpen(false)
-            // const newMessage = {
-            //     groupId:societyID,
-            //     groupName:name,
-            //     when:(new Date()).toJSON() as any,
-            //     text:values.message,
-            //     personId:currentUser.id
-            // }
-            // connection.send("SendGroupMessage",newMessage)
             actions.setSubmitting(false)
             actions.resetForm()
             dialog({
                 type: "info",
-                message: "Message Sent successful",
+                message: "Transaction created successful",
                 title: ""
             })
         } catch (err) {
@@ -153,9 +139,6 @@ const SendMessage: React.FC<IProps> = ({ currentChatAccount }) => {
         setSelectedTransfer(arg)
     }
 
-    const initialTransactionValue = {
-        review: ""
-    }
     const handleChatSubmit = (values: messageForm, { ...action }: any) => {
         dispatch(addChatMessage({
             author: {
@@ -166,7 +149,11 @@ const SendMessage: React.FC<IProps> = ({ currentChatAccount }) => {
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             message: values.message
         }, dialog))
+        if(currentUser.role !== "admin" && !currentUser.hasChat){
+            firebase.updateProfile({hasChat:true})
+        }
         action.setSubmitting(false)
+        action.resetForm()
     }
 
     const handleImageTransformation = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -191,7 +178,8 @@ const SendMessage: React.FC<IProps> = ({ currentChatAccount }) => {
 
     const selectStyles = `flex flex-col p-4 shadow-md items-center space-y-3`
     const containerStyles = selectedTransfer !== null ? { height: "35rem", width: "35rem" } : {}
-
+    const isAdmin = currentUser.role === "admin"
+    
     return (
         <>
             <Dialog open={open} handleClose={handleToggle} title="Create a New Transaction"
@@ -228,54 +216,58 @@ const SendMessage: React.FC<IProps> = ({ currentChatAccount }) => {
                         }
                     </Box>
                     <Collapse mountOnEnter unmountOnExit in={selectedTransfer !== null} >
-                        <Formik onSubmit={handleSubmit}
-                            initialValues={initialTransactionValue}
+                        <Formik onSubmit={handleTransactionSubmit}
+                            initialValues={initialTransactionValues}
                         >
-                            {(formikProps: FormikProps<typeof initialTransactionValue>) => (
-                                <div className="flex flex-col justify-center">
-                                    <div className="md:w-2/4 md:mx-auto">
-                                        <label className="block text-sm font-medium md:text-center text-gray-700">
-                                            Transaction Image
-                                        </label>
-                                        <div className={`
-                                                        mt-1 flex h-60 justify-center px-6 my-10
-                                                        pt-5 pb-6 border-2 border-gray-300 border-dashed
-                                                        rounded-md`}
-                                            style={{
-                                                backgroundImage: `url(${image.base64})`,
-                                                backgroundPosition: "center",
-                                                backgroundRepeat: "no-repeat",
-                                                backgroundSize: "contain"
-                                            }}
-                                        >
-                                            <div className="space-y-1 text-center my-auto flex flex-col items-center">
-                                                <BiImageAdd className="mx-auto h-12 w-12 text-gray-400" />
-                                                <div className="flex text-sm text-gray-600">
-                                                    <label htmlFor="file-upload3" className="relative cursor-pointer font-medium text-indigo-600 hover:text-indigo-500 text-center">
-                                                        <span>Upload a file</span>
-                                                        <input id="file-upload3" accept="image/jpeg;image/png" onChange={handleImageTransformation}
-                                                            name="file-upload3" type="file" className="sr-only" />
-                                                    </label>
+                            {(formikProps: FormikProps<transactionMessageForm>) => {
+                                return(
+                                    <div className="flex flex-col justify-center">
+                                        <div className="md:w-2/4 md:mx-auto">
+                                            <label className="block text-sm font-medium md:text-center text-gray-700">
+                                                Transaction Image
+                                            </label>
+                                            <div className={`
+                                                            mt-1 flex h-60 justify-center px-6 my-10
+                                                            pt-5 pb-6 border-2 border-gray-300 border-dashed
+                                                            rounded-md`}
+                                                style={{
+                                                    backgroundImage: `url(${image.base64})`,
+                                                    backgroundPosition: "center",
+                                                    backgroundRepeat: "no-repeat",
+                                                    backgroundSize: "contain"
+                                                }}
+                                            >
+                                                <div className="space-y-1 text-center my-auto flex flex-col items-center">
+                                                    <BiImageAdd className="mx-auto h-12 w-12 text-gray-400" />
+                                                    <div className="flex text-sm text-gray-600">
+                                                        <label htmlFor="file-upload3" className="relative cursor-pointer font-medium text-indigo-600 hover:text-indigo-500 text-center">
+                                                            <span>Upload a file</span>
+                                                            <input id="file-upload3" accept="image/jpeg;image/png" onChange={handleImageTransformation}
+                                                                name="file-upload3" type="file" className="sr-only" />
+                                                        </label>
+                                                    </div>
+                                                    <p className="text-xs text-gray-500">
+                                                        PNG, JPG, GIF up to 10MB
+                                                    </p>
                                                 </div>
-                                                <p className="text-xs text-gray-500">
-                                                    PNG, JPG, GIF up to 10MB
-                                                </p>
                                             </div>
                                         </div>
+                                        <Box className="transactionImageContainer flex w-11/12 m-3 overflow-auto">
+                                            {totalTransactionImage.map((item, idx) => (
+                                                <img key={idx} className="w-1/4 mx-1 h-28" src={item.base64} />
+                                            ))}
+                                        </Box>
+                                        <TextArea label="Input Comment" rows={5}
+                                            name="comment" className="w-100"
+                                        />
+                                        <MaterialButton role="submit" type="submit"
+                                        // disabled={totalTransactionImage.length <= 1 || formikProps.values.comment.length <= 1}
+                                        onClick={formikProps.handleSubmit as any}>
+                                            Submit
+                                        </MaterialButton>
                                     </div>
-                                    <Box className="transactionImageContainer flex w-11/12 m-3 overflow-auto">
-                                        {totalTransactionImage.map((item, idx) => (
-                                            <img key={idx} className="w-1/4 mx-1 h-28" src={item.base64} />
-                                        ))}
-                                    </Box>
-                                    <TextArea label="Input Comment" rows={5}
-                                        name="comment" className="w-100"
-                                    />
-                                    <MaterialButton role="submit" type="submit" onClick={formikProps.handleSubmit as any}>
-                                        Submit
-                                    </MaterialButton>
-                                </div>
-                            )}
+                                )
+                            }}
                         </Formik>
                     </Collapse>
                 </Box>
@@ -285,11 +277,14 @@ const SendMessage: React.FC<IProps> = ({ currentChatAccount }) => {
                     onSubmit={handleChatSubmit}>
                     {(formikProps: FormikProps<messageForm>) => (
                         <>
-                            <TouchRipple onClick={handleToggle} className="cursor-pointer"
-                                disabled={formikProps.isSubmitting}
-                            >
-                                <RiImageAddFill />
-                            </TouchRipple>
+                        {!isAdmin && 
+                        <TouchRipple onClick={handleToggle} className="cursor-pointer"
+                            disabled={formikProps.isSubmitting}
+                        >
+                            <RiImageAddFill />
+                        </TouchRipple>
+                    
+                        }
                             <NormalInput name="message" placeholder="Write a message"
                                 className={`mx-5 ${classes.margin}`}
                             />

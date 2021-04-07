@@ -1,6 +1,7 @@
 import firebase from "firebase"
+import { DataBaseModel } from "./BaseModel";
 
-export interface ChatMessage {
+export interface ChatMessage extends DataBaseModel {
     createdAt:ReturnType<typeof firebase.firestore.FieldValue.serverTimestamp>;
     author:{
         username:string;
@@ -8,5 +9,6 @@ export interface ChatMessage {
         photoURL:string;
     };
     message:string;
-    transaction?:string
+    transaction?:boolean;
+    ownerIsCurrentUser?:boolean
 }
