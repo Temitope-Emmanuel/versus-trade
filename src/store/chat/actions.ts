@@ -1,16 +1,17 @@
 import { ChatMessage } from "core/models/ChatMessage";
 import {dialogServiceType} from "core/utils/Alert/AlertContext"
 import {
-  AddMessageToCurrentChatAction,ClearChatMessageAction,
-  SetCurrentChatProfileAction,loadChatMessagesAction,
-  ActionTypes,ClearAlertMessageAction,SetMessageAlertAction
+  AddMessageChatAction,ClearChatMessageAction,
+  SetCurrentChatProfileAction,AddLoadingAction,
+  ActionTypes,ClearAlertMessageAction,SetMessageAlertAction, RemoveLoadingAction,
+  LoadCurrentChatHistoryAction,setChatListAction,LoadPreviousChatHistoryAction
 } from "./types"
 import { Dispatch } from "redux";
 import { AppState } from "store";
 import { IAccount } from "core/models/Account";
 import {Transaction} from "core/models/Transaction"
-import {ExtendedFirebaseInstance, getFirebase} from "react-redux-firebase"
-import firebase from "firebase/app"
+import {ExtendedFirebaseInstance} from "react-redux-firebase"
+import {LoadingDetail} from "./types"
 
 export function setChatProfile (currentProfile:IAccount):SetCurrentChatProfileAction{
     return ({
@@ -19,32 +20,46 @@ export function setChatProfile (currentProfile:IAccount):SetCurrentChatProfileAc
     })
 }
 
-export function clearChatMessage ():ClearChatMessageAction{
-    return ({
-        type:ActionTypes.CLEAR_CHAT_MESSAGE
+export function addLoadingAction(arg:LoadingDetail):AddLoadingAction{
+    return({
+        type:ActionTypes.ADD_LOADING,
+        payload:arg
     })
 }
-export function addChatMessage(newMessage:ChatMessage,dialog:dialogServiceType){
- return (dispatch:Dispatch,state:() => AppState,getFirebase:{
-     getFirebase:() => ExtendedFirebaseInstance,
-     getFirestore:() => ReturnType<typeof firebase.firestore>
- })  => {
-     const appState = state()
-     const firestore = getFirebase.getFirestore()
-     const documentRef = firestore.collection("users").doc(appState.chat.currentChatProfile.id).collection("chatMessages").doc()
-     return documentRef.set({
-         ...newMessage,
-         id:documentRef.id
-     }).catch(err => {
-         dialog({
-             message:`Error:${err.message}`,
-             type:"error",
-             title:"Unable to complete adding new chat message"
-         })
-     })
- }  
+export function removeLoadingAction(arg:LoadingDetail):RemoveLoadingAction{
+    return({
+        type:ActionTypes.REMOVE_LOADING,
+        payload:arg
+    })
 }
-export function addTransaction(newTransaction:Transaction,dialog){
+
+export function clearChatMessage (userId:string):ClearChatMessageAction{
+    return ({
+        type:ActionTypes.CLEAR_CHAT_MESSAGE,
+        payload:{
+            userId
+        }
+    })
+}
+export function clearChatNotification(userId:string):ClearAlertMessageAction{
+    return({
+        type:ActionTypes.CLEAR_ALERT_MESSAGE,
+        payload:{
+            userId
+        }
+    })
+}
+export function setMessage (userId:string):SetMessageAlertAction {
+    return({
+        type:ActionTypes.SET_MESSAGE_ALERT,
+        payload:{
+            userId
+        }
+    })
+}
+
+
+export function addTransaction(newTransaction:Transaction,dialog:dialogServiceType){
     return async (dispatch:Dispatch,state:() => AppState,getFirebase:{
         getFirebase:() => ExtendedFirebaseInstance,
         getFirestore:() => ReturnType<typeof firebase.firestore>
@@ -59,7 +74,8 @@ export function addTransaction(newTransaction:Transaction,dialog){
         const documentRef = firestore.collection("users").doc(appState.firebase.profile.id).collection("transactions").doc(documentRefForChat.id)
         const downloadResult = [];
         // Upload the result
-        await firebase.uploadFiles(`media/transactions/${documentRef.id}`, newTransaction.files as any,`media/transactions/${documentRef.id}`,{
+        await firebase.uploadFiles(`users/${appState.firebase.profile.id}/transaction`,
+         newTransaction.file as any,`users/${appState.firebase.profile.id}/transaction`,{
             documentId:documentRef.id,
             metadataFactory:(uploadRes, firebase, metadata, downloadURL) => {
                 // upload response from Firebase's storage upload
@@ -70,7 +86,6 @@ export function addTransaction(newTransaction:Transaction,dialog){
                     fullPath,
                     downloadURL
                   })
-                // default factory includes name, fullPath, downloadURL
                 return {
                   name,
                   fullPath,
@@ -78,9 +93,6 @@ export function addTransaction(newTransaction:Transaction,dialog){
                 }
               }
         }).then(async(result) => {
-
-            console.log({downloadResult})
-    
                 const newChat:ChatMessage = {
                     author:{
                         id:appState.firebase.profile.id,
@@ -97,35 +109,84 @@ export function addTransaction(newTransaction:Transaction,dialog){
                  id:documentRefForChat.id
                 })
     
-                const {files,...newerTransaction} = newTransaction
+                const {file,...newerTransaction} = newTransaction
                 await documentRef.set({
                     ...newerTransaction,
                     id:documentRef.id,
                     file:downloadResult
+                }).then(() => {
+                    dialog({
+                        message:"New Transaction successfully created",
+                        type:"info",
+                        title:""
+                    })
                 })
                 
+        }).catch(err => {
+            dialog({
+                message:`Error:${err.message}`,
+                type:"error",
+                title:"Unable to complete Request"
+            })
         })
 
     }
 }
 
-export function loadAllChatMessage(chatMessage:ChatMessage[]):loadChatMessagesAction{
+
+export function addCurrentMessageHistory(chatMessage:ChatMessage[]):LoadCurrentChatHistoryAction{
     return({
-        payload:chatMessage,
-        type:ActionTypes.LOAD_CHAT_MESSAGE
+        type:ActionTypes.LOAD_CURRENT_CHAT_MESSAGE,
+        payload:chatMessage
     })
 }
 
-export function addAlertNotification(arg:string):SetMessageAlertAction{
+export function addPreviousMessageHistory(arg:ChatMessage[],userId:string):LoadPreviousChatHistoryAction{
     return({
-        payload:arg,
-        type:ActionTypes.SET_MESSAGE_ALERT
+        type:ActionTypes.LOAD_PREVIOUS_CHAT_MESSAGE,
+        payload:{
+            chatMessage:arg,
+            userId
+        }
     })
 }
 
-export function clearAlertNotification(arg:string):ClearAlertMessageAction{
+export function addMessageAlert(userId:string):SetMessageAlertAction{
     return({
-        payload:arg,
-        type:ActionTypes.CLEAR_ALERT_MESSAGE
+        type:ActionTypes.SET_MESSAGE_ALERT,
+        payload:{
+            userId
+        }
+    })
+}
+
+export function addSingleChatMessage({
+    chat,newMessage
+}:{
+    newMessage:ChatMessage,
+    chat:string
+}){
+    return async (dispatch:Dispatch,state:() => AppState) => {
+        const {chat:{
+            currentChatProfile
+        }} = state()
+        if(currentChatProfile.id !== chat){
+            console.log("we are here")
+            dispatch(addMessageAlert(chat))
+        }
+        return dispatch(({
+            type:ActionTypes.ADD_CHAT_MESSAGE,
+            payload:{
+                chatMessage:newMessage,
+                userId:chat
+            }
+        }))
+    }
+}
+
+export function setChatList(arg:IAccount[]):setChatListAction{
+    return({
+        type:ActionTypes.SET_CHAT_LIST,
+        payload:arg
     })
 }

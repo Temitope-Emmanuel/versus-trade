@@ -1,5 +1,6 @@
 import React, { ComponentType } from "react"
 import Head from "next/head"
+import "styles/globals.css"
 import "tailwindcss/dist/tailwind.css"
 import theme from "styles/theme"
 import type { AppInitialProps } from "next/app"
@@ -11,16 +12,17 @@ import "aos/dist/aos.css"
 import { Provider } from "react-redux"
 import { wrapper, newStore } from "../src/store"
 import { createFirestoreInstance } from "redux-firestore"
-import { ReactReduxFirebaseConfig, ReactReduxFirebaseProvider, ReactReduxFirebaseProviderProps } from "react-redux-firebase"
+import { ReactReduxFirebaseConfig, ReactReduxFirebaseProvider, ReactReduxFirebaseProviderProps, useFirebase } from "react-redux-firebase"
 import firebase from "firebase/app"
-
-import { AlertServiceProvider } from "../src/core/utils/Alert/AlertContext"
+import "styles/styles.css"
+import { AlertServiceProvider, useAlertService } from "../src/core/utils/Alert/AlertContext"
 
 function MyApp({ Component, pageProps }: {
   Component: ComponentType<AppInitialProps>,
   pageProps: AppInitialProps
 }) {
-  // const firebase = useFirebase()
+
+  const dialog = useAlertService()
 
   // This is the setup for the rrf
   const rrfConfig: Partial<ReactReduxFirebaseConfig> = {
@@ -35,19 +37,34 @@ function MyApp({ Component, pageProps }: {
     useFirestoreForStorageMeta:true,
     
     // Adds role based value on the saved user data
-    profileFactory: user => {
-     console.log({user})
+    profileFactory: (user,profileData,firebase) => {
       const profile = {
-        email: user.email || user.providerData[0].email,
+        email: profileData.email,
+        firstName:profileData.firstName,
+        lastName:profileData.lastName,
+        phoneNumber:profileData.phoneNumber,
         role: 'user',
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        profileImage:user.photoURL,
-        id:user.uid
+        profileImage:user.photoURL || "",
+        id:(user as any).user.uid
       } as any
 
-      if (user.providerData && user.providerData.length) {
-        profile.providerData = user.providerData
-      }
+        const messaging = (firebase as any).messaging()
+        messaging.requestPermission().then(function(){
+          return messaging.getToken()
+        }).then(token => {
+          firebase.firestore().collection("fcmToken").doc((user as any).user.uid).set({
+            createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+            username:`${profileData.firstName}-${profileData.lastName}`,
+            token
+          })
+        }).catch(err => {
+          dialog({
+            message:`Error:${err.message}`,
+            title:"Unable to complete notification",
+            type:"error"
+          })
+        })
       return profile
     }
   }
@@ -63,6 +80,7 @@ function MyApp({ Component, pageProps }: {
 
 
   React.useEffect(() => {
+
     AOS.init({
       delay: 500,
       duration: 800

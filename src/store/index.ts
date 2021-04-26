@@ -14,13 +14,13 @@ import * as firebase from "firebase"
 import {fbConfig} from "../core/utils/firebaseConfig"
 import firebaseApp from "firebase/app"
 import "firebase/firestore"
+import "firebase/analytics"
 import "firebase/auth"
 
 
 const rootReducer = combineReducers({
     system:systemReducer,
     chat:chatReducer,
-    // Add firestore & firebase to the store
     firestore:firestoreReducer,
     firebase:firebaseReducer
 })
@@ -36,15 +36,26 @@ export type AppState = ReturnType<typeof rootReducer> & AppState2
 const initialState = {};
 
 const rrfConfig:Partial<Config> = {
- enableLogging:true,
-
+ enableLogging:true
 }
 
 
 export const newStore = () => {
     if(!firebaseApp.apps.length){
         firebaseApp.initializeApp(fbConfig)
-        firebaseApp.firestore()
+        const firestore = firebaseApp.firestore()
+        // firebaseApp.analytics()
+        // firestore.enablePersistence().then(() => {
+        //     console.log("Persistence enabled")
+        // }).catch(err => {
+        //     if (err.code == 'failed-precondition') {
+        //         // probably multible tabs open at once
+        //         alert("Please close the multiple tabs of this application on the browser")
+        //       } else if (err.code == 'unimplemented') {
+        //         // lack of browser support for the feature
+        //         console.log('persistance not available');
+        //       }
+        // })
       }
     
     return createStore(
@@ -54,7 +65,9 @@ export const newStore = () => {
             applyMiddleware(thunk.withExtraArgument({
                 // Adds the firebase && firestore to the dispatch call for availability
                 getFirebase,getFirestore
-            }),reduxLogger),
+            }),
+            reduxLogger
+            ),
             // Makes firebase function call available
         reduxFirestore(firebase,rrfConfig)
         )

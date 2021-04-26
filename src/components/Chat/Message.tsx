@@ -1,7 +1,7 @@
 import React from "react"
 import { Box, Avatar, Typography } from "@material-ui/core"
 import { createStyles, makeStyles } from "@material-ui/core/styles"
-import { SendMessageToUser } from "core/models/Chat"
+import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
 import { ChatMessage } from "core/models/ChatMessage"
 import TouchRipple from "@material-ui/core/ButtonBase"
@@ -41,7 +41,7 @@ const useStyles = makeStyles((theme) => createStyles({
             height: "20px"
         },
         "& span": {
-            fontSize: ".75rem"
+            fontSize: ".7rem"
         }
     },
     fromMe: {
@@ -81,42 +81,47 @@ const useStyles = makeStyles((theme) => createStyles({
 }))
 
 
+
 interface IProps {
-    chat: ChatMessage
+    chat: ChatMessage;
+    style:object
 }
 
 
 const Message: React.FC<IProps> = ({
+    style,
     chat: { id, author, createdAt, message, transaction, ownerIsCurrentUser }
 }) => {
     const classes = useStyles()
-    const justifySelf = { justifyContent: ownerIsCurrentUser ? "flex-end" : "flex-start" }
+    const justifySelf = { justifyContent: ownerIsCurrentUser ? "flex-end" : "flex-start",...(ownerIsCurrentUser && {paddingRight:".5rem"}) }
     const alignSelf = { alignSelf: ownerIsCurrentUser ? "flex-end" : "flex-start" }
 
     return (
-        <Box className={`${classes.root}`} style={justifySelf}>
+        <Box className={`${classes.root}`} style={{...justifySelf,...style}}>
             {
                 transaction ?
-                <TouchRipple style={{margin:".75rem auto"}} className="mx-auto">
-                    <Box className="self-center shadow-md rounded-3xl bg-blue-200 p-3 ring-2">
-                        <Typography className="text-lg font-medium text-gray-400">
-                            A transaction has been created
-                        </Typography>
-                    </Box> 
-                </TouchRipple>
+                <Link href={`/transaction/${id}`}>
+                    <TouchRipple style={{margin:".75rem auto"}} className="mx-auto">
+                        <Box className="self-center shadow-md rounded-3xl bg-blue-200 p-2 ring-2">
+                            <Typography className="font-medium text-gray-400">
+                                A transaction has been created
+                            </Typography>
+                        </Box> 
+                    </TouchRipple>
+                </Link>
                  :
                  <>
                     {!ownerIsCurrentUser && <Avatar className={`${classes.avatarContainer} ${classes.fromThemContainer}`} src={author.photoURL} />}
-            <Box className={classes.messageContainer}>
-                <Typography className={ownerIsCurrentUser ? classes.fromMe : classes.fromThem}>
-                    {message}
-                </Typography>
-                <Typography component="span" style={alignSelf}>
-                    {createdAt && `${formatDistanceToNow((createdAt as any).toDate())} ago`}
-                </Typography>
-            </Box>
-            {ownerIsCurrentUser && <Avatar className={`${classes.avatarContainer} ${classes.fromMeContainer}`} src={author.photoURL} />}
-            </>
+                    <Box className={classes.messageContainer}>
+                        <Typography className={ownerIsCurrentUser ? classes.fromMe : classes.fromThem}>
+                            {message}
+                        </Typography>
+                        <Typography component="span" style={alignSelf}>
+                            {createdAt && `${formatDistanceToNow((createdAt as any).toDate())} ago`}
+                        </Typography>
+                    </Box>
+                    {ownerIsCurrentUser && <Avatar className={`${classes.avatarContainer} ${classes.fromMeContainer}`} src={author.photoURL} />}
+                </>
             }
         </Box>
     )

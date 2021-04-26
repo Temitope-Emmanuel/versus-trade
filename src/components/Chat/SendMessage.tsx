@@ -1,14 +1,13 @@
 import React from "react"
-import { Box, Collapse } from "@material-ui/core"
+import { Box, Collapse, Button } from "@material-ui/core"
 import { createStyles, makeStyles } from "@material-ui/core/styles"
-import { IAccount } from "core/models/Account"
 import { NormalInput, TextArea } from "components/Input"
 import { FormikProps, Formik } from "formik"
 import { AiOutlineSend } from "react-icons/ai"
 import TouchRipple from "@material-ui/core/ButtonBase";
 import { VscLoading } from "react-icons/vsc"
 import { useAlertService } from "core/utils/Alert/AlertContext"
-import { useFirebase } from "react-redux-firebase"
+import { useFirestore, useFirebase } from "react-redux-firebase"
 import { RiImageAddFill } from "react-icons/ri"
 import { Dialog } from "components/Dialog"
 import { AiFillIdcard } from "react-icons/ai"
@@ -16,22 +15,24 @@ import { BiCoinStack, BiImageAdd } from "react-icons/bi"
 import { Button as MaterialButton } from "components/Button"
 import { useAppSelector, useDispatch } from "store/hooks"
 import {
-    addChatMessage,addTransaction
+    addTransaction
 } from "store/chat/actions"
+import { firebaseMessaging } from "firebaseUtils/webPush"
+import * as Yup from "yup"
 
 const useStyles = makeStyles((theme) => createStyles({
     root: {
         borderRadius: "2.5px",
         display: "flex",
         alignItems: "center",
-        width:"85%",
+        width: "85%",
         padding: theme.spacing(2),
         justifyContent: "space-evenly",
         "& svg": {
-            backgroundColor:theme.palette.primary.light,
-            borderRadius:"50%",
-            padding:".5rem",
-            fontSize:"2.5rem"
+            backgroundColor: theme.palette.primary.light,
+            borderRadius: "50%",
+            padding: ".5rem",
+            fontSize: "2.5rem"
         },
         // "& svg:first-child":{
         //     color:"#B603C9"
@@ -63,10 +64,6 @@ const useStyles = makeStyles((theme) => createStyles({
 }))
 
 
-
-
-
-
 const initialValues = {
     message: ""
 }
@@ -78,7 +75,6 @@ type messageForm = typeof initialValues
 type transactionMessageForm = typeof initialTransactionValues
 
 interface IProps {
-    currentChatAccount: IAccount;
 }
 
 const defaultImageStorage = {
@@ -87,41 +83,64 @@ const defaultImageStorage = {
     file: null
 }
 
-const SendMessage: React.FC<IProps> = ({ currentChatAccount }) => {
+const SendMessage: React.FC<IProps> = ({ }) => {
     const classes = useStyles()
     const dialog = useAlertService()
+    const firestore = useFirestore()
     const firebase = useFirebase()
-    const filesPath = "uploadedFiles"
     const dispatch = useDispatch()
-    const uploadedFiles = useAppSelector(({ firebase: { data } }) => data[filesPath])
+    const fcmMessaging = React.useRef<firebaseMessaging>()
+    const currentChatProfile = useAppSelector(state => state.chat.currentChatProfile)
     const currentUser = useAppSelector((state) => state.firebase.profile)
-    const currentAuth = useAppSelector((state) => state.firebase.auth)
     const [open, setOpen] = React.useState(false)
     const [selectedTransfer, setSelectedTransfer] = React.useState(null)
     const [image, setImage] = React.useState(defaultImageStorage)
-    const bottomDiv = React.useRef<Element | null>(null)
+    // const [count,setCount] = React.useState(0)
+    const inputRef = React.useRef<HTMLInputElement | null>(null)
     const [totalTransactionImage, setTotalTransactionImage] = React.useState<typeof defaultImageStorage[]>([])
-    
+    const newMessageRef = React.useRef<firebase.default.firestore.CollectionReference<firebase.default.firestore.DocumentData> | null>(null)
+
+    const sendMessage = () => {
+        return fcmMessaging.current.sendMessage({
+            title: "Successfully sent transaction",
+            body: "A new transaction has been successfully registered on your account"
+        })
+    }
+
     const handleTransactionSubmit = async (values: transactionMessageForm, { ...actions }: any) => {
         try {
+            const allTransactionImage = [...totalTransactionImage, image.base64 ? image : undefined]
             actions.setSubmitting(true)
-            await dispatch(addTransaction({
-                comment:values.comment,
-                files:totalTransactionImage.map(item => item.file),
-                status:"Pending",
-                type:selectedTransfer
-            },dialog))
-
-            setTotalTransactionImage([])
-            setImage(defaultImageStorage)
-            setOpen(false)
-            actions.setSubmitting(false)
-            actions.resetForm()
-            dialog({
-                type: "info",
-                message: "Transaction created successful",
-                title: ""
+            new Promise((resolve,reject) => {
+                resolve(dispatch(addTransaction({
+                    comment: values.comment,
+                    file: allTransactionImage.map(item => item.file),
+                    status: "Pending",
+                    type: selectedTransfer,
+                    requestedAmount: 0,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    user: {
+                        id: currentUser.id || "",
+                        email: currentUser.email || "",
+                        username: currentUser.username || "",
+                    }
+                }, dialog)))
+            }).then(() => {
+                setTotalTransactionImage([])
+                setImage(defaultImageStorage)
+                setOpen(false)
+                actions.setSubmitting(false)
+                actions.resetForm()
+                dialog({
+                    type: "info",
+                    message: "Transaction created",
+                    title: "Request successful"
+                })
+                sendMessage().then(() => {
+                })
             })
+
+
         } catch (err) {
             actions.setSubmitting(false)
             dialog({
@@ -131,6 +150,7 @@ const SendMessage: React.FC<IProps> = ({ currentChatAccount }) => {
             })
         }
     }
+
     const handleToggle = () => {
         setOpen(!open)
     }
@@ -138,19 +158,33 @@ const SendMessage: React.FC<IProps> = ({ currentChatAccount }) => {
     const handleSelectedTransfer = (arg: "gift" | "crypto") => () => {
         setSelectedTransfer(arg)
     }
+    React.useEffect(() => {
+        newMessageRef.current = firestore.collection("users").doc(currentChatProfile.id).collection("chatMessages")
+    }, [currentChatProfile])
 
-    const handleChatSubmit = (values: messageForm, { ...action }: any) => {
-        dispatch(addChatMessage({
+    React.useEffect(() => {
+        if (!currentUser.isEmpty) {
+            fcmMessaging.current = new firebaseMessaging(firebase, currentUser as any, dialog,true)
+
+        }
+    }, [currentUser])
+    const handleChatSubmit = async (values: messageForm, { ...action }: any) => {
+        const chatMessageRef = firestore.collection("users").doc(currentChatProfile.id).collection("chatMessages").doc()
+        await chatMessageRef.set({
             author: {
-                id: currentAuth.uid,
+                id: currentUser.id,
                 photoURL: currentUser.profileImage,
                 username: currentUser.email,
             },
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             message: values.message
-        }, dialog))
-        if(currentUser.role !== "admin" && !currentUser.hasChat){
-            firebase.updateProfile({hasChat:true})
+        }).then(() => {
+            inputRef.current?.focus()
+        }).catch(err => {
+
+        })
+        if (currentUser.role !== "admin" && !currentUser.hasChat) {
+            firebase.updateProfile({ hasChat: true })
         }
         action.setSubmitting(false)
         action.resetForm()
@@ -175,11 +209,14 @@ const SendMessage: React.FC<IProps> = ({ currentChatAccount }) => {
             }
         }
     }
+    const validationSchema = Yup.object({
+        comment: Yup.string().required()
+    })
 
     const selectStyles = `flex flex-col p-4 shadow-md items-center space-y-3`
     const containerStyles = selectedTransfer !== null ? { height: "35rem", width: "35rem" } : {}
     const isAdmin = currentUser.role === "admin"
-    
+
     return (
         <>
             <Dialog open={open} handleClose={handleToggle} title="Create a New Transaction"
@@ -188,9 +225,6 @@ const SendMessage: React.FC<IProps> = ({ currentChatAccount }) => {
                         <MaterialButton color="primary">
                             Cancel
                         </MaterialButton>
-                        {/* <MaterialButton onClick={handleToggle} color="primary">
-                            Submit
-                        </MaterialButton> */}
                     </>
                 }
             >
@@ -217,17 +251,19 @@ const SendMessage: React.FC<IProps> = ({ currentChatAccount }) => {
                     </Box>
                     <Collapse mountOnEnter unmountOnExit in={selectedTransfer !== null} >
                         <Formik onSubmit={handleTransactionSubmit}
+                            //  validationSchema={validationSchema}
                             initialValues={initialTransactionValues}
                         >
                             {(formikProps: FormikProps<transactionMessageForm>) => {
-                                return(
+                                console.log({ formikProps })
+                                return (
                                     <div className="flex flex-col justify-center">
                                         <div className="md:w-2/4 md:mx-auto">
                                             <label className="block text-sm font-medium md:text-center text-gray-700">
                                                 Transaction Image
                                             </label>
                                             <div className={`
-                                                            mt-1 flex h-60 justify-center px-6 my-10
+                                                            mt-1 flex h-48 justify-center px-6 my-10
                                                             pt-5 pb-6 border-2 border-gray-300 border-dashed
                                                             rounded-md`}
                                                 style={{
@@ -252,19 +288,37 @@ const SendMessage: React.FC<IProps> = ({ currentChatAccount }) => {
                                                 </div>
                                             </div>
                                         </div>
-                                        <Box className="transactionImageContainer flex w-11/12 m-3 overflow-auto">
-                                            {totalTransactionImage.map((item, idx) => (
-                                                <img key={idx} className="w-1/4 mx-1 h-28" src={item.base64} />
-                                            ))}
+                                        <Box className="transactionImageContainer flex w-11/12 m-3 h-28 overflow-auto">
+                                            <>
+                                                {
+                                                    totalTransactionImage.map((item, idx) => (
+                                                        <div key={idx} className="w-1/4 mx-1 h-100">
+                                                            <img className="w-100 h-100 object-contain" src={item.base64} />
+                                                            <span />
+                                                        </div>
+                                                    ))}
+                                                {image.base64 &&
+                                                    <div key={`personal-unadded-image`} className="w-1/4 mx-1 h-100">
+                                                        <img className="w-100 h-100 object-contain" src={image.base64} />
+                                                        <span />
+                                                    </div>
+                                                }
+                                            </>
                                         </Box>
                                         <TextArea label="Input Comment" rows={5}
                                             name="comment" className="w-100"
                                         />
-                                        <MaterialButton role="submit" type="submit"
-                                        // disabled={totalTransactionImage.length <= 1 || formikProps.values.comment.length <= 1}
-                                        onClick={formikProps.handleSubmit as any}>
+                                        <Button role="submit" type="submit"
+                                            disabled={
+                                                !formikProps.dirty ||
+                                                !formikProps.isValid ||
+                                                formikProps.isSubmitting
+                                                //  ||  totalTransactionImage.length <= 1 || 
+                                                // formikProps.values.comment.length <= 1
+                                            }
+                                            onClick={formikProps.handleSubmit as any}>
                                             Submit
-                                        </MaterialButton>
+                                        </Button>
                                     </div>
                                 )
                             }}
@@ -277,16 +331,15 @@ const SendMessage: React.FC<IProps> = ({ currentChatAccount }) => {
                     onSubmit={handleChatSubmit}>
                     {(formikProps: FormikProps<messageForm>) => (
                         <>
-                        {!isAdmin && 
-                        <TouchRipple onClick={handleToggle} className="cursor-pointer"
-                            disabled={formikProps.isSubmitting}
-                        >
-                            <RiImageAddFill />
-                        </TouchRipple>
-                    
-                        }
+                            {!isAdmin && currentUser.hasChat &&
+                                <TouchRipple onClick={handleToggle} className="cursor-pointer"
+                                    disabled={formikProps.isSubmitting}
+                                >
+                                    <RiImageAddFill />
+                                </TouchRipple>
+                            }
                             <NormalInput name="message" placeholder="Write a message"
-                                className={`mx-5 ${classes.margin}`}
+                                ref={inputRef} className={`mx-5 ${classes.margin}`}
                             />
                             <TouchRipple
                                 disabled={formikProps.isSubmitting || !formikProps.dirty || !formikProps.isValid}

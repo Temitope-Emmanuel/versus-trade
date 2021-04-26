@@ -9,11 +9,14 @@ const initialState: SystemState = {
     isLoading:true,
     pageTitle:"",
     currentUser: {
+        firstName:"",
+        lastName:"",
+        username:"",
         email:"",
         profileImage:"",
         providerData:[],
         role:"user",
-        
+        favorite:false
     }
 }
 

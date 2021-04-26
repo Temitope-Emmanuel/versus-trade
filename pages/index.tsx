@@ -1,4 +1,5 @@
 import React from "react"
+import Head from "next/head"
 import { Transition } from "@headlessui/react"
 import { DetailCard, QuoteCard } from "components/Cards"
 import Image from "next/image"
@@ -7,7 +8,7 @@ import { GoogleMaps } from "components/GoogleMaps"
 import { Footer } from "components/Footer"
 import { Carousel } from 'components/Carousel'
 import { Atlas } from "components/Atlas"
-import { DialogTitle, DialogContent, Button as MaterialButton, Typography, DialogActions } from "@material-ui/core"
+import { DialogTitle, DialogContent, Button as MaterialButton, Typography, DialogActions, Link, makeStyles, createStyles } from "@material-ui/core"
 import { Dialog } from "components/Dialog"
 export { Dialog } from "components/Dialog"
 import { FaFacebookSquare } from "react-icons/fa"
@@ -16,38 +17,47 @@ import { AiOutlineMail } from "react-icons/ai"
 import { useAppSelector } from "../src/store/hooks"
 import { useFirebase, isEmpty } from "react-redux-firebase"
 import { useAlertService } from "core/utils/Alert/AlertContext"
+import { ICoinDetail } from "core/models/CoinDetail"
+import {FaEthereum} from "react-icons/fa"
+import {IoMdArrowDropdown,IoMdArrowDropup} from "react-icons/io"
+import {BsPen} from "react-icons/bs"
+import {FaLaptop} from "react-icons/fa"
+import {VscLightbulbAutofix} from "react-icons/vsc"
+import {RiLightbulbFlashLine} from "react-icons/ri"
+import {AiFillSafetyCertificate} from "react-icons/ai"
+import {IoMdSpeedometer} from "react-icons/io"
 
 
 const detailArray = [
   {
     title: "Best Rates",
     subtitle: "Our service, tools and simple trading process will get you trading happily from day one.",
-    icon: "detailIcons/pen.svg"
+    icon: <BsPen/>
   },
   {
     title: "24/7 Customer Support",
     subtitle: "Prestmit offers an intuitive, beginner-friendly interface and 24/7 customer support.",
-    icon: "detailIcons/video.svg"
+    icon: <FaLaptop/>
   },
   {
     title: "Extensive Network",
     subtitle: "Our service, tools and simple trading process will get you trading happily from day one.",
-    icon: "detailIcons/intellectual.svg"
+    icon: <VscLightbulbAutofix/>
   },
   {
     title: "Convenient & Safe",
     subtitle: "Our service, tools and simple trading process will get you trading happily from day one.",
-    icon: "detailIcons/intellectual.svg"
+    icon: <RiLightbulbFlashLine/>
   },
   {
     title: "Instant Payment",
     subtitle: "Our service, tools and simple trading process will get you trading happily from day one.",
-    icon: "detailIcons/intellectual.svg"
+    icon: <AiFillSafetyCertificate/>
   },
   {
     title: "Secure & Private",
     subtitle: "Our service, tools and simple trading process will get you trading happily from day one.",
-    icon: "detailIcons/intellectual.svg"
+    icon:<IoMdSpeedometer/>
   },
 ]
 
@@ -63,10 +73,104 @@ const dashboardMenu = [
   { icon: "featureIcon/Groups.svg", title: "Instant Payment" },
   { icon: "featureIcon/Announcement.svg", title: "Transparency" },
 ]
+const useStyles = makeStyles((theme) => createStyles({
+  root: {
+  },
+  '@keyframes marquee': {
+    '0%': { left: 0 },
+    '100%': { left: '-100%' }
+  },
+  cryptoContainer: {
+    display: "flex",
+    flexDirection: "row",
+    "& > *": {
+      width: "50%",
+      transform: "scale(.66)"
+    }
+  },
+  miniCryptoContainer: {
+    "& .coin-marquee-container__inner": {
+      display: "flex",
+      flexDirection: "row",
+      width: "100%",
+      "& > *": {
+        margin: theme.spacing(0, 2)
+      }
+    }
+    // "& > div":{
+    //   display:"flex",
+    //   flexDirection:"row",
+    //   "& > div":{
+    //     display:"flex",
+    //     flexDirection:"row",
+    //     "& > div:first-child":{
+    //       display:"flex",
+    //       flexDirection:"row"
+    //     }
+    //   }
+    // }
+  },
+  marquee:{
+    minHeight: "80px",
+    width: "100%",
+    overflow: "hidden",
+    position: "relative",
+    "& > div":{
+      display: "flex",
+      width: "200%",
+      height: "100%",
+      overflow: "hidden",
+      position: "absolute",
+      animation: "$marquee 10s linear infinite",
+      "& > div":{
+        float: "left",
+        width: "min-content"
+      }
+    }
+  },
+  marqueeContainer:{
+    borderRadius:"1px",
+    "& > div":{
+      border:"1px solid #eff2f5",
+      "& svg":{
+        fontSize:"1.5rem"
+      },
+      "& > div":{
+        margin:theme.spacing(0,2),
+        alignItems:'center',
+        "& span":{
+          whiteSpace:"nowrap"
+        },
+        display:"flex",
+        "& > *":{
+          margin:theme.spacing(0,1)
+        },
+        "& > div:first-child":{
+          display:"flex",
+          alignItems:"center",
+          "& div":{
+            display:"flex",
+            flexDirection:"column",
+            alignItems:"flex-start",
+            "& span:first-child":{
+              fontWeight:"bold",
+            },
+            "& span:nth-child(2)":{
+              fontWeight:"ligher",
+              
+            }
+          }
+        }
+      },
+    }
+  }
+}))
 
 
 export default function Home() {
   const router = useRouter()
+  const classes = useStyles()
+  const [coinDetail,setCoinDetail] = React.useState<ICoinDetail[]>([])
   const [mobileOpen, setMobileOpen] = React.useState(false)
   const auth = useAppSelector(state => state.firebase.auth)
   const profile = useAppSelector(state => state.firebase.profile)
@@ -118,7 +222,6 @@ export default function Home() {
   const loginWithFacebook = async () => {
     try {
       const response = await firebase.login({ provider: 'facebook', type: "popup" })
-      console.log(JSON.stringify(response, null, 2))
       if (response.additionalUserInfo.isNewUser) {
         alert({
           type: "success",
@@ -142,16 +245,22 @@ export default function Home() {
       })
     }
   }
-
-  const signInWithEmail = async () => {
-
-  }
-
   const PushToProfile = () => {
     router.push(`/user/${profile?.id}}/chat`)
   }
+  const cryptoContainerRef = React.useRef<HTMLDivElement | null>(null)
 
+  React.useEffect(() => {
+    const getCryptoStat = () => {
 
+      fetch("/api/getCrypto", {method:"GET"})
+        .then(response => response.json())
+        .then(result => setCoinDetail(result.data.data))
+        .catch(error => console.log('error', error));
+
+    }
+    getCryptoStat()
+  }, [])
 
   return (
     <>
@@ -163,7 +272,6 @@ export default function Home() {
                 fill="currentColor" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
                 <polygon points="50,0 100,0 50,100 0,100" />
               </svg>
-
               <div className="relative pt-6 px-4 sm:px-6 lg:px-8">
                 <nav data-aos="fade-down" className="relative flex items-center justify-between sm:h-10 lg:justify-start" aria-label="Global">
                   <div className="flex items-center flex-grow flex-shrink-0 lg:flex-grow-0">
@@ -248,15 +356,32 @@ export default function Home() {
                     Where better transactions are done
                 </p>
                   <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
-                    <div data-aos="zoom-in-right" onClick={!isEmpty(profile) ? PushToProfile : handleDialogToggle} className="rounded-md shadow">
-                      <span className={`
-                      w-full flex items-center justify-center px-8 py-3 border 
-                      border-transparent text-base font-medium rounded-md cursor-pointer
-                      text-white bg-red-600 hover:bg-red-700 md:py-4 
-                      md:text-lg md:px-10`}>
-                        {!isEmpty(profile) ? "View Profile" : "Get started"}
-                      </span>
-                    </div>
+                    {
+                      isEmpty(profile) ? 
+                      <Link href="/Signup" >
+                        <div data-aos="zoom-in-right"
+                          className="rounded-md shadow">
+                          <span className={`
+                          w-full flex items-center justify-center px-8 py-3 border 
+                          border-transparent text-base font-medium rounded-md cursor-pointer
+                          text-white bg-red-600 hover:bg-red-700 md:py-4 
+                          md:text-lg md:px-10`}>
+                            {!isEmpty(profile) ? "View Profile" : "Get started"}
+                          </span>
+                        </div>
+                      </Link> : 
+                      <div data-aos="zoom-in-right"
+                        onClick={PushToProfile}
+                        className="rounded-md shadow">
+                        <span className={`
+                        w-full flex items-center justify-center px-8 py-3 border 
+                        border-transparent text-base font-medium rounded-md cursor-pointer
+                        text-white bg-red-600 hover:bg-red-700 md:py-4 
+                        md:text-lg md:px-10`}>
+                          {!isEmpty(profile) ? "View Profile" : "Get started"}
+                        </span>
+                      </div>
+                    }
                     <div data-aos="zoom-in-left" className="mt-3 sm:mt-0 sm:ml-3">
                       <a href="https://wa.link/3df9ra" className={`
                       w-full flex items-center justify-center px-8 py-3 border 
@@ -277,10 +402,42 @@ export default function Home() {
           </div>
         </div>
         <section data-aos="fade-up">
+          <div className={`marquee ${classes.marqueeContainer} ${classes.marquee}`}>
+            <div>
+              {
+                coinDetail.map((item,idx) => (
+                  <div className="m-2 border-gray-50 rounded-sm">
+                    <div>
+                      <FaEthereum/>
+                      <div>
+                        <span>{item.name}</span>
+                        <span>{item.symbol}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <span>
+                        {`$ ${item.quote.USD.price.toPrecision(4)}`}
+                      </span>
+                      <div className={`flex items-center justify-between ${item.quote.USD.percent_change_24h < 0 ? "text-red-500" : "text-green-500"}`} >
+                        {
+                          item.quote.USD.percent_change_24h < 0 ? 
+                          <IoMdArrowDropdown/>:
+                          <IoMdArrowDropup/>
+                        }
+                        <span>
+                          {`${item.quote.USD.percent_change_24h.toPrecision(3)}%`}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
           <h2 className="text-4xl text-center my-6 font-medium text-red-600">What Ever You Need we Have</h2>
           <div className="flex flex-col justify-around max-w-6xl mx-auto my-4 flex-wrap items-center md:flex-row">
             {detailArray.map((item, idx) => (
-              <DetailCard key={idx} imageSrc={item.icon}
+              <DetailCard key={idx} icon={item.icon}
                 data-aos="flip-right"
                 subtitle={item.subtitle} title={item.title} />
             ))}
@@ -295,13 +452,17 @@ export default function Home() {
         </section>
         <section className="customer-view" data-aos="fade-up">
           <h3 className="text-4xl my-6 text-center font-medium text-red-600">What Our Happy Customers are Saying!</h3>
-          <div className="flex flex-col justify-center md:flex-row flex-wrap">
-            {[1, 2, 3, 4].map((item, idx) => (
-              <QuoteCard data-aos="flip-right" key={idx} />
-            ))}
+          {/* <div className={`flex flex-col justify-center md:flex-row flex-wrap ${classes.marquee}`}>
+          </div> */}
+          <div className={`${classes.marquee} h-60`}>
+            <div className="h-44">
+              {[1, 2, 3, 4].map((item, idx) => (
+                <QuoteCard data-aos="flip-right" key={idx} />
+              ))}
+            </div>
           </div>
         </section>
-        
+
         <Footer />
       </div>
       <Dialog open={open} handleClose={handleDialogToggle} title="Join VersusTrade"

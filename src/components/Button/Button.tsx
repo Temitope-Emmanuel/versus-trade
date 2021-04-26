@@ -3,7 +3,6 @@ import {ButtonProps} from "@material-ui/core/Button"
 import {BaseModel} from "core/models/BaseModel"
 
 interface IProps extends BaseModel,ButtonProps {
-    // [key:string]:any
     style?:any;
 }
 

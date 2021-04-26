@@ -1,5 +1,9 @@
 import React from "react"
-import { Box,makeStyles, Typography, Slide, useTheme,useMediaQuery,Grow, createStyles, Tab, Tabs, Theme, withStyles } from "@material-ui/core"
+import {
+    Box, makeStyles, Typography, Slide,
+    useTheme, useMediaQuery, Grow, createStyles,
+    Tab, Tabs, Theme, withStyles
+} from "@material-ui/core"
 import { Badge } from "components/Badge"
 import { RiMore2Fill } from "react-icons/ri"
 import TouchRipple from "@material-ui/core/ButtonBase"
@@ -7,13 +11,15 @@ import SwipeableViews from "react-swipeable-views"
 import ListChat from "./ListChat"
 import SendChat from "./SendMessage"
 import { IAccount } from "core/models/Account"
-import {BiStar} from "react-icons/bi"
-import {BsStarFill} from "react-icons/bs"
-import { useAppSelector,useDispatch } from "store/hooks"
-import {isEmpty, useFirebase} from "react-redux-firebase"
-import {SendMessageToUser} from "core/models/Chat"
-import {ChatMessage} from "core/models/ChatMessage"
-import {setChatProfile,loadAllChatMessage,addChatMessage,clearChatMessage} from "store/chat/actions"
+import { BiStar } from "react-icons/bi"
+import { BsStarFill } from "react-icons/bs"
+import { useAppSelector, useDispatch } from "store/hooks"
+import {ProfileCard} from "components/Cards"
+import { useFirebase, useFirebaseConnect } from "react-redux-firebase"
+import {
+    setChatProfile, setChatList, addSingleChatMessage,
+    addCurrentMessageHistory
+} from "store/chat/actions"
 import { useAlertService } from "core/utils/Alert/AlertContext"
 
 
@@ -84,54 +90,168 @@ const StyledTab = withStyles((theme: Theme) =>
 )((props: StyledTabProps) => <Tab disableRipple {...props} />);
 
 const useStyles = makeStyles((theme) => createStyles({
-    root:{},
-    favoriteContainer:{
-        height:"2rem",
-        width:"2rem",
-        "& > *" :{
-            margin:"auto",
-            top:0,
-            bottom:0,
-            right:0,
-            left:0
+    root: {
+        position: "relative"
+    },
+    chatListContainer: {
+        position: "relative",
+        zIndex: 2
+    },
+    favoriteContainer: {
+        height: "2rem",
+        width: "2rem",
+        "& > *": {
+            margin: "auto",
+            top: 0,
+            bottom: 0,
+            right: 0,
+            left: 0
         }
     }
 }))
 
 const MainChatView = () => {
+    useFirebaseConnect(() => ([
+        {
+            path:"presence"
+        }
+    ]))
     const theme = useTheme()
     const classes = useStyles()
     const firebase = useFirebase()
     const dispatch = useDispatch()
     const dialog = useAlertService()
     const [open, setOpen] = React.useState(false)
+    const [userPresence,setUserPresence] = React.useState<string[]>([])
+    const [userAlert,setUserAlert] = React.useState<string[]>([])
     const [favorite,setFavorite] = React.useState(false)
     const currentUser = useAppSelector(state => state.firebase.profile)
+    const presence = useAppSelector(state => state.firebase.ordered.presence) || []
+    const alerts = useAppSelector(state => state.chat.alerts)
     const currentChatProfile = useAppSelector(state => state.chat.currentChatProfile)
+    const allMessages = useAppSelector(state => state.chat.messages) || []
+    const chatList = useAppSelector(state => state.chat.chatList)
     const mediaQuery = useMediaQuery(theme.breakpoints.up("sm"))
-    const [chatList,setChatList] = React.useState<IAccount[]>([])
-    const currentMessages = useAppSelector((state) => state.chat.currentMessages)
-    const [messages,setMessage] = React.useState<ChatMessage[]>([])
-    const chatMessage = useAppSelector(state => state.firestore.data.messages)
-    const listener:any[] = []
+    const listener: any[] = []
     const toggleOpen = () => {
         setOpen(!open)
     }
 
-    const getAllAvailableChat = async () => {
+    const getAllAvailableUserChat = async () => {
         const response = await firebase.firestore().collection("users")
-        .where("hasChat","==",true)
-        .orderBy("createdAt")
-        .get()
-        if(!response.empty){
-            const result = [];
-            response.docs.map(item => {
-                result.push({
-                    id:item.id,
-                    ...item.data()
-                })
+            .where("hasChat", "==", true)
+            .orderBy("createdAt")
+            .onSnapshot(docs => {
+                console.log("Called")
+                if (!docs.empty) {
+                    const result = []
+                    docs.docs.map(item => {
+                        result.push({
+                            id: item.id,
+                            ...item.data()
+                        })
+                    })
+                    dispatch(setChatList(result))
+                }
             })
-            setChatList(result)
+        listener.push(response)
+    }
+
+    const getCurrentChat = async () => {
+        const allAvailableChat = Object.keys(allMessages)
+        if (allAvailableChat.includes(currentChatProfile.id)) {
+        } else {
+            // First create a reference to be used later    
+            const currentUserRef = firebase.firestore().collection("users").doc(currentChatProfile.id)
+                .collection("chatMessages").orderBy("createdAt")
+
+            // Then get all chat within a specified time
+            currentUserRef.limitToLast(10).get().then(payload => {
+                let lastChat: any;
+                if (!payload.empty) {
+                    const result: any[] = []
+                    payload.docs.map(item => {
+                        lastChat = item
+                        result.push({
+                            id: item.id,
+                            ...item.data() as any
+                        })
+                    })
+                    dispatch(addCurrentMessageHistory(result.map(item => ({
+                        ...item,
+                        ownerIsCurrentUser: item.author.id === currentUser.id
+                    }))))
+                }
+                return lastChat
+            }).then((lastMessage) => {
+                let chatResponse;
+                // Check if this is the first message sent ever
+                if (lastMessage) {
+                    chatResponse = currentUserRef.startAfter(lastMessage).onSnapshot(docs => {
+                        if (!docs.empty) {
+                            const result:any[] = []
+                            docs.docChanges().forEach(items => {
+                                if(!items.doc.metadata.hasPendingWrites){
+                                    const chatId = items.doc.ref.path.split("/")[1]
+                                    const newMessage = {
+                                        chat: chatId,
+                                        newMessage: {
+                                            id: items.doc.id,
+                                            ownerIsCurrentUser: items.doc.data().author.id === currentUser.id,
+                                            ...items.doc.data() as any
+                                        }
+                                    }
+                                    if (items.type === "added") {
+                                        if(!result.find(item => item.id === newMessage.newMessage.id)){
+                                            result.push(newMessage)
+                                        }
+                                    } else if (items.type === "modified") {
+                                        if(!result.find(item => item.id === newMessage.newMessage.id)){
+                                            result.push(newMessage)
+                                        }
+                                    }
+                                }
+                            })
+                            result.map(item => {
+                                dispatch(addSingleChatMessage(item))
+                            })
+                        }
+                    })
+                    listener.push(chatResponse)
+                } else {
+                    chatResponse = currentUserRef.onSnapshot(docs => {
+                        if (!docs.empty) {
+                            const result:any[] = []
+                            docs.docChanges().forEach(items => {
+                                if(!items.doc.metadata.hasPendingWrites){
+                                    const chatId = items.doc.ref.path.split("/")[1]
+                                    const newMessage = {
+                                        chat: chatId,
+                                        newMessage: {
+                                            id: items.doc.id,
+                                            ownerIsCurrentUser: items.doc.data().author.id === currentUser.id,
+                                            ...items.doc.data() as any
+                                        }
+                                    }
+                                    if (items.type === "added") {
+                                        if(!result.find(item => item.id === newMessage.newMessage.id)){
+                                            result.push(newMessage)
+                                        }
+                                    } else if (items.type === "modified") {
+                                        if(!result.find(item => item.id === newMessage.newMessage.id)){
+                                            result.push(newMessage)
+                                        }
+                                    }
+                                }
+                            })
+                            result.map(item => {
+                                dispatch(addSingleChatMessage(item))
+                            })
+                        }
+                    })
+                    listener.push(chatResponse)
+                }
+            })
         }
     }
 
@@ -139,73 +259,48 @@ const MainChatView = () => {
     React.useEffect(() => {
         return () => {
             listener.map(item => {
-                item()                
+                item()
             })
         }
-    },[])
+    }, [])
+    
+    React.useEffect(() => {
+        const newPresence = presence.map(item => item.key)
+        setUserPresence(newPresence)
+    },[presence])
+    
+    React.useEffect(() => {
+        // const newAlert = alerts.ma
+    },[alerts])
 
     React.useEffect(() => {
-        if(currentUser && currentUser.role === "admin"){
-            setOpen(true)
-            getAllAvailableChat()
-        }else{
-            setOpen(false)
-            dispatch(setChatProfile(currentUser as unknown as IAccount))
+        const allList = [...chatList.favorite,...chatList.normal]
+        if(allList.length && currentChatProfile.id){
+            const foundIdx = allList.findIndex(item => item.id === currentChatProfile.id)
+            setFavorite(allList[foundIdx].favorite)
         }
-    },[currentUser])
+    },[chatList])
 
     React.useEffect(() => {
-        const getCurrentUserChat = async () => {
-            const chatResponse = firebase.firestore().collection("users").doc(currentChatProfile.id)
-            .collection("chatMessages").orderBy("createdAt").onSnapshot((docs) => {
-                if(!docs.empty){
-                    const result = []
-                    // docs.docChanges().forEach((change) => {
-                    //     console.log({type:change.type})
-                    //     if(change.type === "added"){
-                    //         change.doc.data().createdAt && result.push({
-                    //             ...change.doc.data(),
-                    //             id:change.doc.id,
-                    //             ownerIsCurrentUser:currentUser.id === change.doc.data().author.id
-                    //         })
-                    //     }
-                    //     else if(change.type === "modified"){
-                    //         const result = change.doc.data().createdAt && {
-                    //             ...change.doc.data(),
-                    //             id:change.doc.id,
-                    //             ownerIsCurrentUser:currentUser.id === change.doc.data().author.id
-                    //         }
-                    //         console.log({result})
-                    //     }
-                    // })
-                    // if(result.length === 1){
-                    //     // dispatch(addChatMessage(result[0],toast))
-                    // }else{
-                        docs.forEach(item => {
-                            console.log("This is ant item")
-                            // if(item.data().createdAt){
-                                result.push({
-                                    ...item.data(),
-                                    id:item.id,
-                                    ownerIsCurrentUser:currentUser.id === item.data().author.id
-                                })
-                            // }
-                        })
-                        setMessage(result)
-                        // dispatch(loadAllChatMessage(result))
-                    // }
-                }
-            })
-            listener.push(chatResponse)
+        if(currentUser.isLoaded){
+            if (currentUser.role === "admin") {
+                setOpen(true)
+                getAllAvailableUserChat()
+            } else {
+                setOpen(false)
+                dispatch(setChatProfile(currentUser as unknown as IAccount))
+            }
         }
-        if(currentChatProfile.id){
-            getCurrentUserChat()
-        }
-    },[currentChatProfile])
+    }, [currentUser])
 
-    const handleChatProfileUpdate = (arg:IAccount) => () => {
-        if(arg.id !== currentChatProfile.id){
-            dispatch(clearChatMessage())
+    React.useEffect(() => {
+        if (currentChatProfile.id) {
+            getCurrentChat()
+        }
+    }, [currentChatProfile])
+
+    const handleChatProfileUpdate = (arg: IAccount) => () => {
+        if (arg.id !== currentChatProfile.id) {
             dispatch(setChatProfile(arg))
         }
     }
@@ -217,52 +312,43 @@ const MainChatView = () => {
     };
     const handleChangeIndex = (index: number) => {
         setValue(index);
-      };
-
-    const handleFavoriteToggle = () => {
-        setFavorite(!favorite)
-    }
+    };
 
     React.useEffect(() => {
-        if(currentUser.role === "admin"){
-            if(mediaQuery){
+        if (currentUser.role === "admin") {
+            if (mediaQuery) {
                 setOpen(true)
-            }else{
+            } else {
                 setOpen(false)
             }
         }
-    },[mediaQuery])
+    }, [mediaQuery])
+    
 
-    const handleCurrentChat = (arg: IAccount) => () => {
-        dispatch(setChatProfile(arg))
+    const setToFavorite = async () => {
+        firebase.firestore().collection("users")
+            .doc(currentChatProfile.id)
+            .update({ favorite: !favorite }).then(() => {
+                setFavorite(!favorite)
+            }).catch(err => {
+                dialog({
+                    type: "error",
+                    message: `Error:${err.message}`,
+                    title: "Something went wrong"
+                })
+            })
     }
 
-    const defaultUser: IAccount = {
-        email: "temitopeojo0@gmail.com",
-        profileImage: "/profileImage.jpg",
-        providerData: [],
-        role: "admin",
-        id: "sdnksodisldjl"
 
-    }
     return (
         <Box className="rounded-2xl overflow-hidden mx-auto shadow-xl flex">
             <Slide direction="right" in={open} mountOnEnter unmountOnExit>
                 <Box className="mainChatListView relative w-2/6 mr-1">
-                    <Box className="bg-blue-900 px-3 py-2 flex items-center justify-between">
+                    <Box className="bg-blue-900 px-3 py-3 flex items-center justify-between">
                         <Box className="flex items-center space-x-3">
-                            <Badge img={currentUser.profileImage} />
-                            <Typography className="font-medium text-white">
+                            <Typography className="text-white">
                                 {currentUser.email}
                             </Typography>
-                        </Box>
-                        <Box className={`relative flex ${classes.favoriteContainer}`}>
-                            <Grow mountOnEnter unmountOnExit in={favorite} timeout={{enter:500}} >
-                                <BsStarFill onClick={handleFavoriteToggle} className="text-3xl absolute cursor-pointer"/>
-                            </Grow>
-                            <Grow mountOnEnter unmountOnExit in={!favorite} timeout={{enter:500}} >
-                                <BiStar onClick={handleFavoriteToggle} className="text-3xl absolute cursor-pointer"/>
-                            </Grow>
                         </Box>
                     </Box>
                     <SwipeableViews
@@ -271,51 +357,25 @@ const MainChatView = () => {
                         onChangeIndex={handleChangeIndex}
                     >
                         <TabPanel value={value} index={0}>
-                            <Box className="chatListContainer">
-                                {chatList.map((item, idx) => (
-                                    <TouchRipple key={idx} className="w-full">
-                                        <Box className={
-                                            `flex p-3 ml-0 w-full justify-start items-center  space-x-2 cursor-pointer
-                                    ${currentChatProfile.id === item.id ? 'bg-blue-300' : 'hover:bg-gray-200 '} 
-                                    `
-                                        } onClick={handleChatProfileUpdate(item)}>
-                                            <Badge img={item.profileImage} className="ml-0" />
-                                            <Box>
-                                                <p className="font-semibold mb-1 text-lg font-raleway">
-                                                    {item.email}
-                                                </p>
-                                                <span className="text-black text-opacity-75 text-sm mt-1">
-                                                    {(item.createdAt as any).toDate().toTimeString()}
-                                                </span>
-                                            </Box>
-                                        </Box>
-                                    </TouchRipple>
+                            <Box className={classes.chatListContainer}>
+                                {chatList.normal.map((item, idx) => (
+                                    <ProfileCard active={currentChatProfile.id === item.id} key={item.id}
+                                    online={userPresence.includes(item.id)} alert={alerts?.[item.id]}
+                                    updateChatProfile={handleChatProfileUpdate} userProfile={item}
+                                    />
                                 ))}
                             </Box>
                         </TabPanel>
                         {
                             currentUser.role === "admin" &&
-                        <TabPanel value={value} index={1}>
-                            {chatList.map((item, idx) => (
-                                <TouchRipple key={idx} className="w-full">
-                                    <Box className={
-                                        `flex p-3 ml-0 w-full justify-start items-center  space-x-2 cursor-pointer
-                                    ${currentChatProfile.id === item.id ? 'bg-blue-300' : 'hover:bg-gray-200 '} 
-                                    `
-                                    } onClick={handleCurrentChat(item)}>
-                                        <Badge img={item.profileImage} className="ml-0" />
-                                        <Box>
-                                            <p className="font-semibold mb-1 text-lg font-raleway">
-                                                {item.email}
-                                        </p>
-                                            <span className="text-black text-opacity-75 text-sm mt-1">
-                                                {(item.createdAt as any).toDate().toTimeString()}
-                                            </span>
-                                        </Box>
-                                    </Box>
-                                </TouchRipple>
-                            ))}
-                        </TabPanel>
+                            <TabPanel value={value} index={1}>
+                                {chatList.favorite.map((item, idx) => (
+                                    <ProfileCard active={currentChatProfile.id === item.id} key={item.id}
+                                    online={userPresence.includes(item.id)} alert={alerts?.[item.id]}
+                                        updateChatProfile={handleChatProfileUpdate} userProfile={item}
+                                    />
+                                ))}
+                            </TabPanel>
                         }
                     </SwipeableViews>
                     <div className="bg-blue-900 absolute bottom-0 w-full">
@@ -334,46 +394,66 @@ const MainChatView = () => {
                  ${currentUser.role === "admin" && !currentChatProfile.id ? "flex" : "hidden"}
                  `}
                 >
-                    <h4 className="text-lg text-black">
+                    <h4 className="text-black">
                         Please Select a Chat to Continue
                     </h4>
                 </div>
-                <Box className="bg-blue-900 py-2 p-5 flex items-center">
+                <Box className="bg-blue-900 py-3 p-5 flex items-center">
                     <Box className="flex justify-between items-center w-full">
                         {
-                            currentChatProfile && <Box className="flex items-center space-x-3">
-                            <Badge img={currentChatProfile.profileImage} />
-                            <Typography className="font-medium text-white">
-                               {currentChatProfile.email}
-                            </Typography>
-                        </Box>
+                            currentChatProfile.id && 
+                            <>
+                            <Box className="flex items-center space-x-3">
+                                <Badge img={currentChatProfile.profileImage}
+                                    badgePresence={userPresence.includes(currentChatProfile.id)}
+                                />
+                                <Typography className="font-medium text-white">
+                                    {currentChatProfile.email}
+                                </Typography>
+                            </Box>
+                            {
+                                currentUser.role === "admin" &&
+                                <Box onClick={setToFavorite}
+                                    className={`relative flex ${classes.favoriteContainer}`}>
+                                    <Grow mountOnEnter unmountOnExit in={!favorite} timeout={{ enter: 500 }} >
+                                        <BiStar className="text-xl absolute cursor-pointer" />
+                                    </Grow>
+                                    <Grow mountOnEnter unmountOnExit in={favorite} timeout={{ enter: 500 }} >
+                                        <BsStarFill className="text-xl absolute cursor-pointer" />
+                                    </Grow>
+                                </Box>
+                            }
+                            </>
                         }
                         {
                             currentUser.role === "admin" &&
-                        <TouchRipple>
-                            <RiMore2Fill onClick={toggleOpen} className={
-                                `text-2xl cursor-pointer text-gray-400 hover:text-gray-900`
-                            } />
-                        </TouchRipple>
+                            <div className="mr-0 ml-auto">
+                                <TouchRipple >
+                                    <RiMore2Fill onClick={toggleOpen} className={
+                                        `text-2xl cursor-pointer text-gray-400 hover:text-gray-900`
+                                    } />
+                                </TouchRipple>
+                            </div>
                         }
+                        
                     </Box>
                 </Box>
-                <Box className="flex flex-col justify-center items-center" style={{height:"65vh"}}>
-                {
-                    currentUser.role === "admin" ? 
-                    <ListChat currentChat={messages} /> :
-                    currentUser.hasChat ? 
-                    <>
-                        <ListChat currentChat={messages} />
-                    </>
-                    :
-                    <>
-                    <Typography>
-                        Send a message to begin a transaction
-                    </Typography>
-                    </>
-                }
-                <SendChat currentChatAccount={defaultUser} />
+                <Box className="flex flex-col justify-center items-center" style={{ height: "65vh" }}>
+                    {/* {
+                        currentUser.role === "admin" ?
+                            <ListChat currentChatProfile={currentChatProfile} /> :
+                            currentUser.hasChat ?
+                                <>
+                                </>
+                                :
+                                <>
+                                    <Typography>
+                                        Send a message to begin a transaction
+                                    </Typography>
+                                </>
+                    } */}
+                    <ListChat currentChatProfile={currentChatProfile} />
+                    <SendChat />
                 </Box>
             </Box>
         </Box>

@@ -12,9 +12,8 @@ import {IoIosArrowBack,IoIosArrowForward, IoIosNotifications, IoMdSettings} from
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import {FiMail} from "react-icons/fi"
 import { AiFillHome, AiOutlineSearch } from 'react-icons/ai';
-import { FaPowerOff, FaRegStar, FaUser } from 'react-icons/fa';
+import { FaPowerOff } from 'react-icons/fa';
 import {RiAccountPinCircleFill} from "react-icons/ri"
 import {BsFillPeopleFill} from "react-icons/bs"
 import { useAppSelector } from 'store/hooks';
@@ -24,6 +23,8 @@ import {useFirebase} from "react-redux-firebase"
 import {AiOutlineWechat} from "react-icons/ai"
 import {GrTransaction} from "react-icons/gr"
 import {FaUserAlt} from "react-icons/fa"
+import TouchRipple from "@material-ui/core/ButtonBase"
+
 
 const drawerWidth = 240;
 
@@ -105,7 +106,7 @@ const useStyles = makeStyles((theme: Theme) =>
         display: 'none',
         marginLeft:"auto",
         alignItems:"center",
-        [theme.breakpoints.up('md')]: {
+        [theme.breakpoints.up('sm')]: {
           display: 'flex',
         }
       },
@@ -124,18 +125,21 @@ const useStyles = makeStyles((theme: Theme) =>
 const DashboardMenu = [
     {
       name:"Chat",
-      link:"/chat",
-      icon:<AiOutlineWechat/>
+      link:"chat",
+      icon:<AiOutlineWechat/>,
+      show:["user","admin"]
     },
     {
       name:"Transaction",
       link:"transaction",
-      icon:<GrTransaction/>
+      icon:<GrTransaction/>,
+      show:["admin"]
     },
     {
       name:"User",
       link:"users",
-      icon:<FaUserAlt/>
+      icon:<FaUserAlt/>,
+      show:["admin"]
     }
   ]
 
@@ -152,7 +156,24 @@ const MiniDrawer:React.FC<{}> = ({children}) => {
   const dialog = useAlertService()
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState<null | HTMLElement>(null);
-  
+
+  React.useEffect(() => {
+    const getMessage = () => {
+      const messaging = (firebase as any).messaging()
+      messaging.onMessage(message => {
+        console.log({
+          message
+        })
+        dialog({
+          title:"A message has been received",
+          message:message.notification.body,
+          type:"info"
+        })
+      })
+    }
+
+    getMessage()
+  },[])
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -249,6 +270,7 @@ const MiniDrawer:React.FC<{}> = ({children}) => {
     console.info('You clicked the Chip.');
   };
   
+  if(!currentUser.isLoaded) return <div>Loading...</div>
   
 
   return (
@@ -270,16 +292,8 @@ const MiniDrawer:React.FC<{}> = ({children}) => {
             <HiMenu />
           </IconButton>
             <div className={classes.sectionDesktop}>
-            <IconButton aria-label="show 4 new mails" color="inherit">
-              <AiOutlineSearch/>
-            </IconButton>
-            <IconButton aria-label={`show ${alerts.length} new mails`} color="inherit">
-              <Badge badgeContent={alerts.length} color="secondary">
-                <HiOutlineMail />
-              </Badge>
-            </IconButton>
             <IconButton aria-label="show 17 new notifications" color="inherit">
-              <Badge badgeContent={17} color="secondary">
+              <Badge badgeContent={0} color="secondary">
                 <IoIosNotifications />
               </Badge>
             </IconButton>
@@ -311,16 +325,18 @@ const MiniDrawer:React.FC<{}> = ({children}) => {
           </IconButton>
         </div>
         <Divider/>
-        <List>
+        <List className="flex flex-col">
           {DashboardMenu.map((item, index) => (
-            <Link key={item.name} href={`/user/${router.query.userId}/${item.link}`}>
-                <ListItem button>
-              <ListItemIcon>
-                  {item.icon}
-              </ListItemIcon>
-              <ListItemText primary={item.name} />
-            </ListItem>
-            </Link>
+            <TouchRipple key={item.name} style={{display:item.show.includes(currentUser.role) ? "initial" : "none"}}>
+              <Link href={`/user/${router.query.userId}/${item.link}`}>
+                  <ListItem button>
+                <ListItemIcon>
+                    {item.icon}
+                </ListItemIcon>
+                <ListItemText primary={item.name} />
+              </ListItem>
+              </Link>
+            </TouchRipple>
           ))}
         </List>
       </Drawer>
