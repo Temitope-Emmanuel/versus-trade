@@ -238,7 +238,7 @@ const SendMessage: React.FC<IProps> = ({ }) => {
             <Dialog open={open} handleClose={handleToggle} title="Create a New Transaction"
                 dialogAction={
                     <>
-                        <MaterialButton color="primary">
+                        <MaterialButton onClick={handleToggle} color="primary">
                             Cancel
                         </MaterialButton>
                     </>
@@ -324,7 +324,8 @@ const SendMessage: React.FC<IProps> = ({ }) => {
                                         <TextArea label="Input Comment" rows={5}
                                             name="comment" className="w-100"
                                         />
-                                        <Button role="submit" type="submit"
+                                        <Button role="submit" type="submit" variant="contained"
+                                        color="primary"
                                             disabled={
                                                 !formikProps.dirty ||
                                                 !formikProps.isValid ||

@@ -225,18 +225,18 @@ const MiniDrawer:React.FC<{}> = ({children}) => {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem className="text-gray" onClick={handleMenuClose}>
         <Link href="/">
-          <>
-            <ListItemIcon>
-              <AiFillHome/>
-            </ListItemIcon>
-            <Typography>
-              Home
-            </Typography>
-          </>
+          <MenuItem className="text-gray" onClick={handleMenuClose}>
+              <>
+                <ListItemIcon>
+                  <AiFillHome/>
+                </ListItemIcon>
+                <Typography>
+                  Home
+                </Typography>
+              </>
+          </MenuItem>
         </Link>
-      </MenuItem>
       <MenuItem className="text-gray" onClick={handleMenuClose}>
         <ListItemIcon>
           <BsFillPeopleFill/>
