@@ -85,7 +85,7 @@ const useStyles = makeStyles((theme: Theme) =>
         duration: theme.transitions.duration.leavingScreen,
       }),
       overflowX: 'hidden',
-      width: theme.spacing(7) + 1,
+      width: 0,
       [theme.breakpoints.up('sm')]: {
         width: theme.spacing(9) + 1,
       },
@@ -100,14 +100,16 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     content: {
       flexGrow: 1,
-      padding: theme.spacing(3),
+      padding: theme.spacing(1),
+      [theme.breakpoints.up("sm")]:{
+        padding: theme.spacing(3)
+      }
     },
     sectionDesktop: {
-        display: 'none',
+        display: 'flex',
         marginLeft:"auto",
         alignItems:"center",
         [theme.breakpoints.up('sm')]: {
-          display: 'flex',
         }
       },
       chipContainer:{
@@ -133,7 +135,7 @@ const DashboardMenu = [
       name:"Transaction",
       link:"transaction",
       icon:<GrTransaction/>,
-      show:["admin"]
+      show:["admin","user"]
     },
     {
       name:"User",
@@ -224,12 +226,16 @@ const MiniDrawer:React.FC<{}> = ({children}) => {
       onClose={handleMenuClose}
     >
       <MenuItem className="text-gray" onClick={handleMenuClose}>
-        <ListItemIcon>
-          <AiFillHome/>
-        </ListItemIcon>
-        <Typography>
-          Home
-        </Typography>
+        <Link href="/">
+          <>
+            <ListItemIcon>
+              <AiFillHome/>
+            </ListItemIcon>
+            <Typography>
+              Home
+            </Typography>
+          </>
+        </Link>
       </MenuItem>
       <MenuItem className="text-gray" onClick={handleMenuClose}>
         <ListItemIcon>
@@ -291,14 +297,17 @@ const MiniDrawer:React.FC<{}> = ({children}) => {
           >
             <HiMenu />
           </IconButton>
-            <div className={classes.sectionDesktop}>
-            <IconButton aria-label="show 17 new notifications" color="inherit">
-              <Badge badgeContent={0} color="secondary">
-                <IoIosNotifications />
-              </Badge>
-            </IconButton>
-            <Chip size="medium" 
-              onClick={handleProfileMenuOpen}
+            <div 
+              className={classes.sectionDesktop}>
+           {
+           alerts.length &&
+           <IconButton aria-label="show 17 new notifications" color="inherit">
+            <Badge badgeContent={0} color="secondary">
+              <IoIosNotifications />
+            </Badge>
+          </IconButton>
+           }
+            <Chip size="medium" onClick={handleProfileMenuOpen}
             className={classes.chipContainer} deleteIcon={
               <RiAccountPinCircleFill/>
             } label={`Hi, ${currentUser?.email}`} onDelete={handleClick} />

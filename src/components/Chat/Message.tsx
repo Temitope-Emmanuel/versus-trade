@@ -14,7 +14,13 @@ const useStyles = makeStyles((theme) => createStyles({
     avatarContainer: {
         position: "relative",
         marginTop: theme.spacing(3),
-        zIndex: 5
+        zIndex: 5,
+        width:"1.5rem",
+        height:"1.5rem",
+        [theme.breakpoints.up("md")]:{
+            width:"4rem",
+            height:"4rem"
+        }
     },
     fromMeContainer: {
         marginLeft: theme.spacing(1.5),
@@ -32,7 +38,14 @@ const useStyles = makeStyles((theme) => createStyles({
             lineHeight: "24px",
             position: "relative",
             padding: "5px 12.5px",
-            borderRadius: "25px"
+            borderRadius: "25px",
+            fontSize:".75rem",
+            [theme.breakpoints.up("sm")]:{
+                fontSize:"1rem"
+            },
+            [theme.breakpoints.up("md")]:{
+                fontSize:"1.25rem"
+            }
         },
         "&  p::before,& p::after": {
             content: "' '",
@@ -41,7 +54,10 @@ const useStyles = makeStyles((theme) => createStyles({
             height: "20px"
         },
         "& span": {
-            fontSize: ".7rem"
+            fontSize: ".5rem",
+            [theme.breakpoints.up("md")]:{
+                fontSize: ".7rem"
+            }
         }
     },
     fromMe: {
@@ -103,9 +119,9 @@ const Message: React.FC<IProps> = ({
                 <Link href={`/transaction/${id}`}>
                     <TouchRipple style={{margin:".75rem auto"}} className="mx-auto">
                         <Box className="self-center shadow-md rounded-3xl bg-blue-200 p-2 ring-2">
-                            <Typography className="font-medium text-gray-400">
+                            <p className="text-xs md:text-base text-gray-400">
                                 A transaction has been created
-                            </Typography>
+                            </p>
                         </Box> 
                     </TouchRipple>
                 </Link>

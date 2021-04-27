@@ -25,14 +25,21 @@ const useStyles = makeStyles((theme) => createStyles({
         borderRadius: "2.5px",
         display: "flex",
         alignItems: "center",
-        width: "85%",
-        padding: theme.spacing(2),
+        padding: theme.spacing(1),
         justifyContent: "space-evenly",
+        [theme.breakpoints.up("sm")]:{
+            width: "85%",
+            padding: theme.spacing(2)
+        },
         "& svg": {
             backgroundColor: theme.palette.primary.light,
             borderRadius: "50%",
-            padding: ".5rem",
-            fontSize: "2.5rem"
+            padding: ".25rem",
+            fontSize: "2rem",
+            [theme.breakpoints.up("sm")]:{
+                padding: ".5rem",
+                fontSize: "2.5rem"
+            }
         },
         // "& svg:first-child":{
         //     color:"#B603C9"
@@ -57,8 +64,17 @@ const useStyles = makeStyles((theme) => createStyles({
     },
     tradeContainer: {
         overflowX: "clip",
+        // [theme.breakpoints.up("md")]:{
+        //     height: "35rem", 
+        //     width: "35rem",
+        // },
         "& svg": {
-            fontSize: "2rem"
+            padding: ".25rem",
+            fontSize: "2rem",
+            [theme.breakpoints.up("sm")]:{
+                padding: ".5rem",
+                fontSize: "2.5rem"
+            }
         }
     }
 }))
@@ -228,7 +244,7 @@ const SendMessage: React.FC<IProps> = ({ }) => {
                     </>
                 }
             >
-                <Box className={`flex-col w-96 space-y-3 ${classes.tradeContainer}`} style={containerStyles}>
+                <Box className={`flex-col space-y-3 ${classes.tradeContainer}`}>
                     <Box className={`flex ${selectedTransfer === null ? "justify-between" : "justify-center"}`}>
                         {
                             selectedTransfer !== "crypto" &&
@@ -292,7 +308,7 @@ const SendMessage: React.FC<IProps> = ({ }) => {
                                             <>
                                                 {
                                                     totalTransactionImage.map((item, idx) => (
-                                                        <div key={idx} className="w-1/4 mx-1 h-100">
+                                                        <div key={idx} className="md:w-1/4 mx-1 h-100">
                                                             <img className="w-100 h-100 object-contain" src={item.base64} />
                                                             <span />
                                                         </div>

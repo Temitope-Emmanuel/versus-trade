@@ -15,7 +15,7 @@ export interface ICoinDetail {
         last_updated: Date;
         quote: {
             USD: {
-                price: number;
+                price: number | string;
                 volume_24h: number;
                 percent_change_1h: number;
                 percent_change_24h: number;

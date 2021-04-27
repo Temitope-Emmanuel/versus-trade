@@ -20,7 +20,9 @@ import { IAccount } from "core/models/Account";
 
 const useStyles = makeStyles(theme => createStyles({
     root: {
-        padding: theme.spacing(4),
+        [theme.breakpoints.up("md")]:{
+            padding: theme.spacing(4),
+        },
         "& > div":{
             margin:"auto"
         }

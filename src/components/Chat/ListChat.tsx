@@ -218,7 +218,7 @@ const ListMessage:React.FC<IProps> = ({currentChatProfile}) => {
                         {({height,width}) => (
                             <Box >
                                 <List ref={listRef} useIsScrolling itemCount={messages.length} width={width}
-                                    height={height} itemSize={70}
+                                    height={height} itemSize={80}
                                 >
                                     {Row}
                                 </List>

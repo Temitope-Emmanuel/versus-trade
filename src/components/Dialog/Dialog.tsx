@@ -39,8 +39,8 @@ const AlertDialogSlide:React.FC<IProps> = ({children,title,dialogAction,handleCl
       <Dialog
         open={open}
         TransitionComponent={Transition}
-        keepMounted
-        onClose={handleClose}
+        keepMounted maxWidth="sm"
+        onClose={handleClose} fullWidth={true}
         aria-labelledby="alert-dialog-slide-title"
         aria-describedby="alert-dialog-slide-description"
       >

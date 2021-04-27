@@ -24,11 +24,11 @@ const StyledTableRow = withStyles((theme: Theme) =>
 interface IProps{
   fields:any[];
   isLoaded:boolean;
-  link?:any
+  onClick?:any
 }
 
-const StyledRow:React.FC<IProps> = ({fields,link}) => (
-  <StyledTableRow onClick={link ? link : null}>
+const StyledRow:React.FC<IProps> = ({fields,onClick}) => (
+  <StyledTableRow onClick={onClick ? onClick : null}>
     {fields.map((item,idx) => (
       <TableCell key={idx} >
         {item}

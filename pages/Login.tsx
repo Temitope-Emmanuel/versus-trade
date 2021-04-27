@@ -58,7 +58,7 @@ const Login = () => {
                     </div>
                 </>
             </Link>
-            <Box className="container bg-gray-200 p-4 rounded-lg h-2/4 max-w-xl w-3/4 flex flex-col justify-around">
+            <Box className="container bg-gray-200 flex flex-col justify-center my-3 items-center p-4 rounded-lg max-w-xl w-5/6 md:w-3/4">
                 <h3 className="text-center font-medium text-xl">
                     This is the login page
                 </h3>
@@ -67,7 +67,7 @@ const Login = () => {
                 >
                     {(formikProps:FormikProps<FormType>) => (
                         <>
-                        <Box className="flex w-3/4 flex-col max-w-md mx-auto">
+                        <Box className="flex md:w-3/4 flex-col space-y-3 max-w-md mx-auto">
                             <NormalInput className="w-full" variant="Standard" label="Email" name="email" />
                             <NormalInput className="w-full" variant="Standard" label="Password" name="password" />
                         </Box>

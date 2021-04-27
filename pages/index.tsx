@@ -62,17 +62,6 @@ const detailArray = [
 ]
 
 
-
-const dashboardMenu = [
-  { icon: "featureIcon/prayerHand.svg", title: "Always Available" },
-  { icon: "featureIcon/Bible.svg", title: "Built With Love" },
-  { icon: "featureIcon/Sermon.svg", title: "Trade Anywhere" },
-  { icon: "featureIcon/Giving.svg", title: "Fast Transaction" },
-  { icon: "featureIcon/Activity.svg", title: "Easy To Use" },
-  { icon: "featureIcon/Reflection.svg", title: "Complete Privacy" },
-  { icon: "featureIcon/Groups.svg", title: "Instant Payment" },
-  { icon: "featureIcon/Announcement.svg", title: "Transparency" },
-]
 const useStyles = makeStyles((theme) => createStyles({
   root: {
   },
@@ -191,71 +180,26 @@ export default function Home() {
     setOpen(false);
   };
 
-  const loginWithGoogle = async () => {
-    try {
-      const response = await firebase.login({ provider: 'google', type: "popup" })
-      console.log(JSON.stringify(response, null, 2))
-      if (response.additionalUserInfo.isNewUser) {
-        alert({
-          type: "success",
-          title: "Sign Up successful",
-          message: "Congratulation on joining versus trade"
-        })
-      } else {
-        alert({
-          type: "success",
-          title: "Sign In successful",
-          message: `Welcome back ${response.user.displayName}`
-        })
-      }
-      router.push(`/user/${response.user.uid}/chat`)
-    } catch (err) {
-      console.log("this is terr", err)
-      alert({
-        type: "error",
-        title: "Something went wrong, Unable to complete Request",
-        message: `Error:${err}`
-      })
-    }
-  }
-
-  const loginWithFacebook = async () => {
-    try {
-      const response = await firebase.login({ provider: 'facebook', type: "popup" })
-      if (response.additionalUserInfo.isNewUser) {
-        alert({
-          type: "success",
-          title: "Sign Up successful",
-          message: "Congratulation on joining versus trade"
-        })
-      } else {
-        alert({
-          type: "success",
-          title: "Sign In successful",
-          message: `Welcome back ${response.user.displayName}`
-        })
-      }
-      router.push(`/user/${response.user.uid}/chat`)
-    } catch (err) {
-      console.log("this is terr", err)
-      alert({
-        type: "error",
-        title: "Something went wrong, Unable to complete Request",
-        message: `Error:${err}`
-      })
-    }
-  }
   const PushToProfile = () => {
     router.push(`/user/${profile?.id}}/chat`)
   }
-  const cryptoContainerRef = React.useRef<HTMLDivElement | null>(null)
 
   React.useEffect(() => {
     const getCryptoStat = () => {
 
       fetch("/api/getCrypto", {method:"GET"})
         .then(response => response.json())
-        .then(result => setCoinDetail(result.data.data))
+        .then(result => setCoinDetail((result.data.data as ICoinDetail[]).map(item => ({
+          ...item,
+          quote:{
+            ...item.quote,
+            USD:{
+              ...item.quote.USD,
+              price:new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'USD',maximumSignificantDigits:7 })
+              .format(item.quote.USD.price as number)
+            }
+          }
+        }))))
         .catch(error => console.log('error', error));
 
     }
@@ -401,7 +345,7 @@ export default function Home() {
               className="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full" src="/versustrade.png" alt="" />
           </div>
         </div>
-        <section data-aos="fade-up">
+        <section data-aos="fade-up" className="mt-0">
           <div className={`marquee ${classes.marqueeContainer} ${classes.marquee}`}>
             <div>
               {
@@ -416,7 +360,7 @@ export default function Home() {
                     </div>
                     <div>
                       <span>
-                        {`$ ${item.quote.USD.price.toPrecision(4)}`}
+                        {item.quote.USD.price}
                       </span>
                       <div className={`flex items-center justify-between ${item.quote.USD.percent_change_24h < 0 ? "text-red-500" : "text-green-500"}`} >
                         {
@@ -462,40 +406,8 @@ export default function Home() {
             </div>
           </div>
         </section>
-
         <Footer />
       </div>
-      <Dialog open={open} handleClose={handleDialogToggle} title="Join VersusTrade"
-        dialogAction={() => (
-          <>
-            <MaterialButton onClick={handleClose} color="primary">
-              Disagree
-          </MaterialButton>
-            <MaterialButton onClick={handleClose} color="primary">
-              Agree
-            </MaterialButton>
-          </>
-        )}
-      >
-        <MaterialButton onClick={loginWithGoogle} className="px-3 py-5">
-          <FcGoogle className="mr-3" />
-          <Typography>
-            Sign up with Google
-            </Typography>
-        </MaterialButton>
-        <MaterialButton onClick={loginWithFacebook} className="px-3 py-5">
-          <FaFacebookSquare className="mr-3" />
-          <Typography>
-            Sign up with Facebook
-            </Typography>
-        </MaterialButton>
-        <MaterialButton className="px-3 py-5">
-          <AiOutlineMail className="mr-3" />
-          <Typography>
-            Email
-              </Typography>
-        </MaterialButton>
-      </Dialog>
     </>
   )
 }

@@ -57,14 +57,12 @@ export default function Signup() {
                     <span className="sr-only">Workflow</span>
                     {/* <img className="h-8 w-auto sm:h-10" src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"/> */}
             <Link href="/">
-                <>
-                    <div className="flex items-center cursor-pointer">
-                        <Image width="30" height="30" layout="intrinsic" priority={true} className="h-8 w-auto sm:h-10" src="/logo.png" />
-                        <p className="font-black text-lg">ersusTrade</p>
-                    </div>
-                </>
+                <div className="flex items-center cursor-pointer">
+                    <Image width="30" height="30" layout="intrinsic" priority={true} className="h-8 w-auto sm:h-10" src="/logo.png" />
+                    <p className="font-black text-lg">ersusTrade</p>
+                </div>
             </Link>
-            <Box className="container bg-gray-200 p-4 rounded-lg h-3/5 max-w-xl">
+            <Box className="container bg-gray-200 flex flex-col justify-center items-center p-4 w-5/6 my-3 rounded-lg h-4/5 md:h-3/5 max-w-xl">
                 <h3 className="text-center font-medium text-xl">
                     This is the signup page
                 </h3>
@@ -73,18 +71,18 @@ export default function Signup() {
                 >
                     {(formikProps:FormikProps<FormType>) => (
                         <>
-                        <Box className="inputContainer m-10 space-y-5">
-                            <Box className="flex justify-between">
+                        <Box className="inputContainer my-2 space-y-5">
+                            <Box className="flex flex-col md:flex-row justify-between">
                                 <NormalInput variant="Standard" label="First Name" name="firstName" />
                                 <NormalInput variant="Standard" label="Last Name" name="lastName" />
                             </Box>
                                 <NormalInput className="w-full" variant="Standard" label="Email" name="email" />
-                            <Box className="flex justify-between">
+                            <Box className="flex flex-col md:flex-row justify-between">
                                 <NormalInput variant="Standard" label="Phone Number" name="phoneNumber" />
                                 <NormalInput variant="Standard" label="Password" type="password" name="password" />
                             </Box>
                         </Box>
-                        <Button className="mx-auto my-5" onClick={formikProps.handleSubmit as any}
+                        <Button className="mx-auto my-2" onClick={formikProps.handleSubmit as any}
                             disabled={!formikProps.dirty || !formikProps.isValid || formikProps.isSubmitting}
                         >
                             Submit
